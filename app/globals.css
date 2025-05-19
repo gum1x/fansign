@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 267 75% 50%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 267 75% 50%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 267 75% 50%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 267 75% 50%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom styles for the fansign app */
+.tabs-list {
+  @apply bg-gray-800/40 p-1 rounded-lg;
+}
+
+.tab-trigger {
+  @apply px-3 py-2 rounded-md transition-all;
+}
+
+.tab-trigger[data-state="active"] {
+  @apply bg-purple-700 text-white;
+}
+
+.sign-option {
+  @apply p-3 rounded-lg border transition-all cursor-pointer;
+}
+
+.sign-option.active {
+  @apply bg-purple-700/30 border-purple-500;
+}
+
+.sign-option:not(.active) {
+  @apply bg-gray-800/40 border-purple-900/50 hover:bg-gray-800/60 hover:border-purple-700/50;
+}
+
+.sign-preview {
+  @apply w-full h-16 bg-gray-700/50 rounded-md mb-2 flex items-center justify-center overflow-hidden;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
+  }
+}
+
+.pulse-shadow {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Enhanced tab styles */
+.enhanced-tabs .tabs-list {
+  @apply bg-gray-800/40 p-1 rounded-lg border border-purple-900/30 shadow-inner;
+}
+
+.enhanced-tabs .tab-trigger {
+  @apply px-3 py-2 rounded-md transition-all relative overflow-hidden;
+}
+
+.enhanced-tabs .tab-trigger[data-state="active"] {
+  @apply bg-gradient-to-br from-purple-700 to-purple-900 text-white shadow-md;
+}
+
+.enhanced-tabs .tab-trigger[data-state="active"]::after {
+  content: "";
+  @apply absolute bottom-0 left-1/2 w-1/2 h-0.5 bg-white rounded-full transform -translate-x-1/2 opacity-70;
+}
+
+.enhanced-tabs .tab-trigger:not([data-state="active"]) {
+  @apply hover:bg-purple-900/20;
+}
