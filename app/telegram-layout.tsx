@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { nanoid } from "nanoid"
 
 interface TelegramLayoutProps {
   children: React.ReactNode
@@ -35,8 +36,8 @@ export default function TelegramLayout({ children }: TelegramLayoutProps) {
             // Store the user ID in session storage for other components to use
             sessionStorage.setItem("telegram_user_id", telegramUserId)
 
-            // Generate a simple auth token (in a real app, this would be more secure)
-            const simpleToken = `telegram-${telegramUserId}-${Date.now()}`
+            // Generate a simple auth token using nanoid for consistency
+            const simpleToken = `telegram-${telegramUserId}-${nanoid()}`
             sessionStorage.setItem("telegram_auth_token", simpleToken)
           }
 
@@ -50,11 +51,6 @@ export default function TelegramLayout({ children }: TelegramLayoutProps) {
       setIsLoading(false)
     }
   }, [])
-
-  // For development purposes, always show content
-  if (process.env.NODE_ENV === "development") {
-    return <>{children}</>
-  }
 
   // Show loading state
   if (isLoading) {

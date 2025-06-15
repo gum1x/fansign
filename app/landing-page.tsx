@@ -1,8 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Download, ExternalLink, ImageIcon, Key, PenTool } from "lucide-react"
+import { Download, ExternalLink, ImageIcon, PenTool } from "lucide-react"
 
 export default function LandingPage() {
   return (
@@ -22,27 +21,10 @@ export default function LandingPage() {
             Create personalized fansigns instantly with our powerful generator
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-            >
-              <Link href="/generate">
-                <ImageIcon className="w-5 h-5 mr-2" />
-                Create Fansign
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-purple-500 text-purple-300 hover:bg-purple-900/30"
-            >
-              <Link href="/redeem">
-                <Key className="w-5 h-5 mr-2" />
-                Redeem API Key
-              </Link>
-            </Button>
+            <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              <ImageIcon className="w-5 h-5 mr-2 inline" />
+              Create Fansign
+            </button>
           </div>
         </div>
       </section>
@@ -54,22 +36,20 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-gray-800/50 p-6 rounded-lg border border-purple-700/30 shadow-lg">
               <div className="w-12 h-12 bg-purple-700/30 rounded-full flex items-center justify-center mb-4">
-                <Key className="w-6 h-6 text-purple-400" />
+                <PenTool className="w-6 h-6 text-purple-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">1. Get Credits</h3>
+              <h3 className="text-xl font-semibold mb-2 text-white">1. Choose Template</h3>
               <p className="text-gray-300">
-                Redeem an access key to get credits. Each image generation costs 1 credit. New users start with 0
-                credits.
+                Select from multiple templates and customize your text to create the perfect fansign.
               </p>
             </div>
             <div className="bg-gray-800/50 p-6 rounded-lg border border-purple-700/30 shadow-lg">
               <div className="w-12 h-12 bg-purple-700/30 rounded-full flex items-center justify-center mb-4">
-                <PenTool className="w-6 h-6 text-purple-400" />
+                <ImageIcon className="w-6 h-6 text-purple-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-white">2. Create Your Fansign</h3>
+              <h3 className="text-xl font-semibold mb-2 text-white">2. Generate Image</h3>
               <p className="text-gray-300">
-                Choose from multiple templates and customize your text. Each generation costs 1 credit from your
-                balance.
+                Our AI-powered generator creates your custom fansign with realistic handwriting effects.
               </p>
             </div>
             <div className="bg-gray-800/50 p-6 rounded-lg border border-purple-700/30 shadow-lg">
@@ -91,16 +71,10 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300">
             See Our Latest Fansigns
           </h2>
-          <Button
-            asChild
-            size="lg"
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-          >
-            <Link href="https://t.me/fansignpreviewsbot" target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="w-5 h-5 mr-2" />
-              View Previews on Telegram
-            </Link>
-          </Button>
+          <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            <ExternalLink className="w-5 h-5 mr-2 inline" />
+            View Previews on Telegram
+          </button>
         </div>
       </section>
 
