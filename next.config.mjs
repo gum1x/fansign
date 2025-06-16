@@ -49,6 +49,12 @@ const nextConfig = {
     
     return config
   },
+  // Experimental features for better build performance
+  experimental: {
+    serverComponentsExternalPackages: ['bcryptjs'],
+  },
+  // Output configuration for Railway
+  output: 'standalone',
 }
 
 export default nextConfig

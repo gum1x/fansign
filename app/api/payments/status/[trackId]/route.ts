@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { oxaPayService } from '@/lib/oxapay'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { env } from '@/lib/env'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { trackId: string } }
 ) {
   try {
+    // Early return if we're in build mode
+    if (env.isBuild) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const trackId = parseInt(params.trackId)
 
     if (isNaN(trackId)) {
