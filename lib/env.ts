@@ -13,12 +13,17 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 }
 
 function formatUrl(url: string): string {
-  if (!url || url === 'undefined' || url === 'null') {
+  if (!url || url === 'undefined' || url === 'null' || url.includes('placeholder')) {
     return 'http://localhost:3000'
   }
   
   // Clean the URL first
   url = url.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
+  
+  // Handle Railway URLs that might not have protocol
+  if (url.includes('railway.app') && !url.startsWith('http')) {
+    return `https://${url}`
+  }
   
   // Ensure URL has protocol
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -31,7 +36,9 @@ function formatUrl(url: string): string {
 // Check if we're in build mode
 const isBuildMode = process.env.NODE_ENV === 'production' && (
   typeof window === 'undefined' && 
-  !process.env.RAILWAY_ENVIRONMENT
+  !process.env.RAILWAY_ENVIRONMENT &&
+  !process.env.VERCEL &&
+  !process.env.NETLIFY
 )
 
 export const env = {
@@ -67,8 +74,10 @@ export const env = {
   isDevelopment: getEnvVar('NODE_ENV') === 'development',
   isBuild: isBuildMode,
   
-  // Railway detection
+  // Platform detection
   isRailway: !!getEnvVar('RAILWAY_ENVIRONMENT'),
+  isVercel: !!getEnvVar('VERCEL'),
+  isNetlify: !!getEnvVar('NETLIFY'),
 }
 
 // Validate required environment variables (only in runtime, not build time)
@@ -78,7 +87,7 @@ export function validateEnv() {
     return
   }
 
-  if (env.isProduction && env.isRailway) {
+  if (env.isProduction && (env.isRailway || env.isVercel || env.isNetlify)) {
     const requiredVars = [
       'NEXT_PUBLIC_SUPABASE_URL',
       'NEXT_PUBLIC_SUPABASE_ANON_KEY', 

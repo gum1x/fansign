@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Fansign Generator",
   description: "Create custom fansigns for free",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL('https://localhost:3000'), // Safe fallback for build time
   openGraph: {
     title: "Fansign Generator",
     description: "Create custom fansigns for free",

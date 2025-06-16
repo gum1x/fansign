@@ -29,6 +29,9 @@ const nextConfig = {
   output: 'standalone',
   trailingSlash: true,
   
+  // External packages that should not be bundled
+  serverExternalPackages: ['bcryptjs'],
+  
   // Webpack configuration for better builds
   webpack: (config, { isServer, dev }) => {
     if (!isServer) {
@@ -65,19 +68,10 @@ const nextConfig = {
     return config
   },
   
-  // Experimental features for better build performance
-  experimental: {
-    serverComponentsExternalPackages: ['bcryptjs'],
-    esmExternals: 'loose',
-  },
-  
   // Environment variables available at build time
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  
-  // Disable static optimization for dynamic routes
-  generateStaticParams: false,
   
   // Handle redirects and rewrites
   async redirects() {
