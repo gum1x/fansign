@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authService } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
-import { GENERATION_COSTS } from '@/lib/stripe'
+import { GENERATION_COSTS } from '@/lib/oxapay'
 
 export async function POST(request: NextRequest) {
   try {
