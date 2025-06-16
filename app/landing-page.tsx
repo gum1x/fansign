@@ -17,12 +17,6 @@ export default function LandingPage() {
     return false
   }
 
-  // Security: Disable image selection
-  const handleSelectStart = (e: React.SyntheticEvent) => {
-    e.preventDefault()
-    return false
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       {/* Hero Section */}
@@ -138,7 +132,6 @@ export default function LandingPage() {
                   className="w-full h-20 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-md mb-3 flex items-center justify-center overflow-hidden"
                   onContextMenu={handleContextMenu}
                   onDragStart={handleDragStart}
-                  onSelectStart={handleSelectStart}
                 >
                   <img 
                     src={style.image} 

@@ -130,12 +130,6 @@ export default function GeneratePage() {
     return false
   }, [])
 
-  // Security: Disable image selection
-  const handleSelectStart = useCallback((e: React.SyntheticEvent) => {
-    e.preventDefault()
-    return false
-  }, [])
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, index: number = 0) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -266,7 +260,6 @@ export default function GeneratePage() {
                         className="flex items-center justify-center w-full h-20 bg-gray-700/30 rounded-lg mb-3 overflow-hidden"
                         onContextMenu={handleContextMenu}
                         onDragStart={handleDragStart}
-                        onSelectStart={handleSelectStart}
                       >
                         <img 
                           src={option.previewImage} 
@@ -399,7 +392,6 @@ export default function GeneratePage() {
                       className="border border-purple-700/50 rounded-xl overflow-hidden bg-gray-800/30"
                       onContextMenu={handleContextMenu}
                       onDragStart={handleDragStart}
-                      onSelectStart={handleSelectStart}
                     >
                       <img
                         src={generatedImage}
