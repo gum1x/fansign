@@ -24,8 +24,11 @@ export const env = {
   // Check if we're in development
   isDevelopment: process.env.NODE_ENV === 'development',
 
-  // Check if we're in build mode (Railway sets NODE_ENV=production during build)
-  isBuild: process.env.NODE_ENV === 'production' && !process.env.RAILWAY_ENVIRONMENT,
+  // Check if we're in build mode (Railway detection)
+  isBuild: process.env.NODE_ENV === 'production' && (
+    !process.env.RAILWAY_ENVIRONMENT || 
+    process.env.RAILWAY_STATIC_URL === undefined
+  ),
 }
 
 // Validate required environment variables in production
