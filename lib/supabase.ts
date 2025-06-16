@@ -1,9 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
+import { env } from './env'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 // Database types
 export interface User {
@@ -34,4 +35,21 @@ export interface Payment {
   credits_purchased: number
   status: string
   created_at: string
+}
+
+// Helper function to check if Supabase is properly configured
+export function isSupabaseConfigured(): boolean {
+  return !env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder') && 
+         !env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes('placeholder')
+}
+
+// Helper function to handle database errors gracefully
+export function handleDatabaseError(error: any, fallbackMessage: string = 'Database operation failed') {
+  if (!isSupabaseConfigured()) {
+    console.warn('⚠️ Supabase not configured, using fallback behavior')
+    return { error: 'Database not configured', isConfigError: true }
+  }
+  
+  console.error('Database error:', error)
+  return { error: fallbackMessage, isConfigError: false }
 }

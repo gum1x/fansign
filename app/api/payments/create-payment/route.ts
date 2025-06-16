@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { oxaPayService, CREDIT_PACKAGES } from '@/lib/oxapay'
-import { supabase } from '@/lib/supabase'
+import { supabase, handleDatabaseError, isSupabaseConfigured } from '@/lib/supabase'
 import { nanoid } from 'nanoid'
+import { env } from '@/lib/env'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +21,18 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid package ID' },
         { status: 400 }
       )
+    }
+
+    if (!isSupabaseConfigured()) {
+      // Demo mode - return mock payment link
+      return NextResponse.json({
+        success: true,
+        payLink: `${env.NEXT_PUBLIC_APP_URL}/purchase?success=true&demo=true`,
+        trackId: Math.floor(Math.random() * 1000000),
+        orderId: `demo_${nanoid()}`,
+        amount: creditPackage.price,
+        credits: creditPackage.credits
+      })
     }
 
     // Verify user exists
@@ -41,14 +54,14 @@ export async function POST(request: NextRequest) {
 
     // Create OxaPay payment request
     const paymentRequest = {
-      merchant: process.env.OXAPAY_MERCHANT_KEY!,
+      merchant: env.OXAPAY_MERCHANT_KEY,
       amount: creditPackage.price,
       currency: 'USD',
       lifeTime: 30, // 30 minutes
       feePaidByPayer: 1, // User pays the fee
       underPaidCover: 5, // 5% underpaid tolerance
-      callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/callback`,
-      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/purchase?success=true`,
+      callbackUrl: `${env.NEXT_PUBLIC_APP_URL}/api/payments/callback`,
+      returnUrl: `${env.NEXT_PUBLIC_APP_URL}/purchase?success=true`,
       description: `${creditPackage.name} for ${user.username}`,
       orderId: orderId,
       email: '', // Optional

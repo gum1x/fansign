@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { oxaPayService } from '@/lib/oxapay'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
@@ -14,6 +14,17 @@ export async function GET(
         { error: 'Invalid track ID' },
         { status: 400 }
       )
+    }
+
+    if (!isSupabaseConfigured()) {
+      // Demo mode - return completed status
+      return NextResponse.json({
+        trackId: trackId,
+        status: 'completed',
+        amount: 5.99,
+        credits: 25,
+        oxaPayStatus: { result: 100, status: 'completed', message: 'Demo payment completed' }
+      })
     }
 
     // Get payment status from OxaPay

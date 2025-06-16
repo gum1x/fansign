@@ -1,3 +1,5 @@
+import { env } from './env'
+
 // OxaPay integration for cryptocurrency payments
 export interface OxaPayConfig {
   merchantKey: string
@@ -92,6 +94,16 @@ export class OxaPayService {
 
   async createPayment(request: OxaPayPaymentRequest): Promise<OxaPayPaymentResponse> {
     try {
+      if (env.isDevelopment || this.merchantKey.includes('placeholder')) {
+        // Return mock response for development
+        return {
+          result: 100,
+          message: 'Success (Demo Mode)',
+          trackId: Math.floor(Math.random() * 1000000),
+          payLink: `${env.NEXT_PUBLIC_APP_URL}/purchase?success=true&demo=true`
+        }
+      }
+
       const response = await fetch(`${this.baseUrl}/merchants/request`, {
         method: 'POST',
         headers: {
@@ -110,6 +122,15 @@ export class OxaPayService {
 
   async getPaymentStatus(trackId: number): Promise<any> {
     try {
+      if (env.isDevelopment || this.merchantKey.includes('placeholder')) {
+        // Return mock status for development
+        return {
+          result: 100,
+          status: 'completed',
+          message: 'Payment completed (Demo Mode)'
+        }
+      }
+
       const response = await fetch(`${this.baseUrl}/merchants/inquiry`, {
         method: 'POST',
         headers: {
@@ -130,6 +151,10 @@ export class OxaPayService {
   }
 
   verifyCallback(callbackData: OxaPayCallbackData, expectedHmac: string): boolean {
+    if (env.isDevelopment) {
+      return true // Skip verification in development
+    }
+
     // Verify HMAC signature for security
     const crypto = require('crypto')
     const message = `${callbackData.trackId}*${callbackData.type}*${callbackData.status}*${callbackData.amount}*${callbackData.currency}*${callbackData.date}*${callbackData.txID}`
@@ -139,4 +164,4 @@ export class OxaPayService {
   }
 }
 
-export const oxaPayService = new OxaPayService(process.env.OXAPAY_MERCHANT_KEY!)
+export const oxaPayService = new OxaPayService(env.OXAPAY_MERCHANT_KEY)

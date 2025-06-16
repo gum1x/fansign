@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { supabase } from './supabase'
+import { supabase, handleDatabaseError, isSupabaseConfigured } from './supabase'
 import type { User } from './supabase'
 
 export interface AuthUser {
@@ -21,6 +21,18 @@ export class AuthService {
 
   async register(username: string, password: string): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
     try {
+      if (!isSupabaseConfigured()) {
+        // Fallback for development/demo
+        const mockUser: AuthUser = {
+          id: `demo_${Date.now()}`,
+          username,
+          credits: 10
+        }
+        this.currentUser = mockUser
+        this.saveToLocalStorage(mockUser)
+        return { success: true, user: mockUser }
+      }
+
       // Check if username already exists
       const { data: existingUser } = await supabase
         .from('users')
@@ -48,8 +60,8 @@ export class AuthService {
         .single()
 
       if (error) {
-        console.error('Registration error:', error)
-        return { success: false, error: 'Failed to create account' }
+        const dbError = handleDatabaseError(error, 'Failed to create account')
+        return { success: false, error: dbError.error }
       }
 
       const authUser: AuthUser = {
@@ -70,6 +82,18 @@ export class AuthService {
 
   async login(username: string, password: string): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
     try {
+      if (!isSupabaseConfigured()) {
+        // Fallback for development/demo
+        const mockUser: AuthUser = {
+          id: `demo_${Date.now()}`,
+          username,
+          credits: 25
+        }
+        this.currentUser = mockUser
+        this.saveToLocalStorage(mockUser)
+        return { success: true, user: mockUser }
+      }
+
       // Get user by username
       const { data: user, error } = await supabase
         .from('users')
@@ -105,7 +129,9 @@ export class AuthService {
 
   logout(): void {
     this.currentUser = null
-    localStorage.removeItem('auth_user')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_user')
+    }
   }
 
   getCurrentUser(): AuthUser | null {
@@ -133,6 +159,11 @@ export class AuthService {
   async refreshUserData(): Promise<AuthUser | null> {
     const currentUser = this.getCurrentUser()
     if (!currentUser) return null
+
+    if (!isSupabaseConfigured()) {
+      // Return current user for demo mode
+      return currentUser
+    }
 
     try {
       const { data: user, error } = await supabase
@@ -172,6 +203,13 @@ export class AuthService {
       return { success: false, error: 'Insufficient credits' }
     }
 
+    if (!isSupabaseConfigured()) {
+      // Demo mode - just update locally
+      this.currentUser!.credits -= amount
+      this.saveToLocalStorage(this.currentUser!)
+      return { success: true, newBalance: this.currentUser!.credits }
+    }
+
     try {
       const { data: updatedUser, error } = await supabase
         .from('users')
@@ -181,13 +219,13 @@ export class AuthService {
         .single()
 
       if (error) {
-        console.error('Error deducting credits:', error)
-        return { success: false, error: 'Failed to deduct credits' }
+        const dbError = handleDatabaseError(error, 'Failed to deduct credits')
+        return { success: false, error: dbError.error }
       }
 
       // Update local user data
-      this.currentUser.credits = updatedUser.credits
-      this.saveToLocalStorage(this.currentUser)
+      this.currentUser!.credits = updatedUser.credits
+      this.saveToLocalStorage(this.currentUser!)
 
       return { success: true, newBalance: updatedUser.credits }
     } catch (error) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authService } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+import { supabase, handleDatabaseError, isSupabaseConfigured } from '@/lib/supabase'
 import { GENERATION_COSTS } from '@/lib/oxapay'
 
 export async function POST(request: NextRequest) {
@@ -16,6 +16,15 @@ export async function POST(request: NextRequest) {
 
     // Get credit cost for this style
     const creditCost = GENERATION_COSTS[style as keyof typeof GENERATION_COSTS] || 1
+
+    if (!isSupabaseConfigured()) {
+      // Demo mode - just return success
+      return NextResponse.json({
+        success: true,
+        creditsUsed: creditCost,
+        remainingCredits: 25 - creditCost // Mock remaining credits
+      })
+    }
 
     // Verify user has enough credits
     const { data: user, error: userError } = await supabase
@@ -45,9 +54,9 @@ export async function POST(request: NextRequest) {
       .eq('id', userId)
 
     if (deductError) {
-      console.error('Error deducting credits:', deductError)
+      const dbError = handleDatabaseError(deductError, 'Failed to deduct credits')
       return NextResponse.json(
-        { error: 'Failed to deduct credits' },
+        { error: dbError.error },
         { status: 500 }
       )
     }
