@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { supabase, handleDatabaseError, isSupabaseConfigured } from './supabase'
+import { env } from './env'
 import type { User } from './supabase'
 
 export interface AuthUser {
@@ -21,6 +22,11 @@ export class AuthService {
 
   async register(username: string, password: string): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
     try {
+      // Early return if we're in build mode
+      if (env.isBuild) {
+        return { success: false, error: 'Service temporarily unavailable' }
+      }
+
       if (!isSupabaseConfigured()) {
         // Fallback for development/demo
         const mockUser: AuthUser = {
@@ -73,6 +79,7 @@ export class AuthService {
       this.currentUser = authUser
       this.saveToLocalStorage(authUser)
 
+      console.log('✅ User registered successfully:', username)
       return { success: true, user: authUser }
     } catch (error) {
       console.error('Registration error:', error)
@@ -82,6 +89,11 @@ export class AuthService {
 
   async login(username: string, password: string): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
     try {
+      // Early return if we're in build mode
+      if (env.isBuild) {
+        return { success: false, error: 'Service temporarily unavailable' }
+      }
+
       if (!isSupabaseConfigured()) {
         // Fallback for development/demo
         const mockUser: AuthUser = {
@@ -120,6 +132,7 @@ export class AuthService {
       this.currentUser = authUser
       this.saveToLocalStorage(authUser)
 
+      console.log('✅ User logged in successfully:', username)
       return { success: true, user: authUser }
     } catch (error) {
       console.error('Login error:', error)
@@ -132,6 +145,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_user')
     }
+    console.log('✅ User logged out successfully')
   }
 
   getCurrentUser(): AuthUser | null {
@@ -159,6 +173,11 @@ export class AuthService {
   async refreshUserData(): Promise<AuthUser | null> {
     const currentUser = this.getCurrentUser()
     if (!currentUser) return null
+
+    // Early return if we're in build mode
+    if (env.isBuild) {
+      return currentUser
+    }
 
     if (!isSupabaseConfigured()) {
       // Return current user for demo mode
@@ -201,6 +220,11 @@ export class AuthService {
 
     if (currentUser.credits < amount) {
       return { success: false, error: 'Insufficient credits' }
+    }
+
+    // Early return if we're in build mode
+    if (env.isBuild) {
+      return { success: false, error: 'Service temporarily unavailable' }
     }
 
     if (!isSupabaseConfigured()) {
