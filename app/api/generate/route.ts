@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authService } from '@/lib/auth'
 import { supabase, handleDatabaseError, isSupabaseConfigured } from '@/lib/supabase'
 import { GENERATION_COSTS } from '@/lib/oxapay'
+import { env } from '@/lib/env'
 
 export async function POST(request: NextRequest) {
   try {
+    // Early return if we're in build mode
+    if (env.isBuild) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const { userId, style, textContent, imageUrl } = await request.json()
 
     if (!userId || !style) {

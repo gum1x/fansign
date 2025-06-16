@@ -2,9 +2,13 @@ import { createClient } from '@supabase/supabase-js'
 import { env } from './env'
 
 // Create Supabase client with proper error handling
+// Use empty strings as fallbacks during build time when env vars might not be available
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+
 export const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,
@@ -55,7 +59,9 @@ export function isSupabaseConfigured(): boolean {
   return !!(env.NEXT_PUBLIC_SUPABASE_URL && 
            env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
            env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
-           env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 20)
+           env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 20 &&
+           env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+           env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder-key')
 }
 
 // Helper function to handle database errors gracefully

@@ -23,10 +23,19 @@ export const env = {
   
   // Check if we're in development
   isDevelopment: process.env.NODE_ENV === 'development',
+
+  // Check if we're in build mode
+  isBuild: process.env.NODE_ENV === 'production' && !process.env.VERCEL,
 }
 
 // Validate required environment variables in production
 export function validateEnv() {
+  // Skip validation during build time
+  if (env.isBuild) {
+    console.log('⚠️ Skipping environment validation during build')
+    return
+  }
+
   if (env.isProduction) {
     const requiredVars = [
       'NEXT_PUBLIC_SUPABASE_URL',
@@ -48,5 +57,7 @@ export function validateEnv() {
   }
 }
 
-// Call validation on import
-validateEnv()
+// Call validation on import, but only if not in build mode
+if (!env.isBuild) {
+  validateEnv()
+}

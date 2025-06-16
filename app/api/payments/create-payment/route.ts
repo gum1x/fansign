@@ -6,6 +6,14 @@ import { env } from '@/lib/env'
 
 export async function POST(request: NextRequest) {
   try {
+    // Early return if we're in build mode or missing critical env vars
+    if (env.isBuild || !env.NEXT_PUBLIC_APP_URL) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const { packageId, userId } = await request.json()
 
     if (!packageId || !userId) {
