@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from 'react'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { User, Lock, LogIn, UserPlus } from 'lucide-react'
-import { authService } from '../../lib/auth'
-import type { AuthUser } from '../../lib/auth'
+import { authService } from '@/lib/auth'
+import type { AuthUser } from '@/lib/auth'
 
 interface LoginFormProps {
   onLogin: (user: AuthUser) => void
