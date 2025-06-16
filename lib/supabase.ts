@@ -36,7 +36,9 @@ let supabase: any = null
 try {
   if (cleanSupabaseUrl && cleanSupabaseAnonKey && 
       !cleanSupabaseUrl.includes('placeholder') && 
-      !cleanSupabaseAnonKey.includes('placeholder')) {
+      !cleanSupabaseAnonKey.includes('placeholder') &&
+      cleanSupabaseUrl.startsWith('https://') &&
+      cleanSupabaseAnonKey.startsWith('eyJ')) {
     supabase = createClient(
       cleanSupabaseUrl,
       cleanSupabaseAnonKey,
@@ -53,6 +55,7 @@ try {
         }
       }
     )
+    console.log('✅ Supabase client initialized successfully')
   } else {
     console.warn('⚠️ Supabase credentials not configured, running in demo mode')
   }

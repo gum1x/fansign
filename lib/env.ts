@@ -3,16 +3,8 @@
 
 function getEnvVar(key: string, defaultValue: string = ''): string {
   try {
-    // Check both process.env and window for client-side variables
-    let value = ''
-    
-    if (typeof window !== 'undefined' && key.startsWith('NEXT_PUBLIC_')) {
-      // Client-side: try to get from window or process.env
-      value = (window as any).__NEXT_DATA__?.env?.[key] || process.env[key] || defaultValue
-    } else {
-      // Server-side: get from process.env
-      value = process.env[key] || defaultValue
-    }
+    // For Next.js, environment variables are available in process.env
+    const value = process.env[key] || defaultValue
     
     // Clean up the value by removing any whitespace, newlines, or quotes
     return value.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
@@ -95,6 +87,22 @@ export function validateEnv() {
   // Skip validation during build time
   if (env.isBuild || typeof window === 'undefined') {
     return
+  }
+
+  // Check if Supabase credentials are properly configured
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || supabaseUrl.includes('placeholder') || supabaseUrl === 'https://placeholder.supabase.co') {
+    console.warn('⚠️ NEXT_PUBLIC_SUPABASE_URL is not properly configured')
+  }
+  
+  if (!supabaseKey || supabaseKey.includes('placeholder') || supabaseKey === 'placeholder-key') {
+    console.warn('⚠️ NEXT_PUBLIC_SUPABASE_ANON_KEY is not properly configured')
+  }
+  
+  if (supabaseUrl.includes('placeholder') || supabaseKey.includes('placeholder')) {
+    console.warn('⚠️ Supabase credentials not configured, running in demo mode')
   }
 
   if (env.isProduction && (env.isRailway || env.isVercel || env.isNetlify)) {
