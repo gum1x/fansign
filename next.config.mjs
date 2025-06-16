@@ -71,10 +71,12 @@ const nextConfig = {
       /Critical dependency/,
     ]
     
-    // Handle bcryptjs properly
+    // Handle bcryptjs properly - remove the require statement that was causing issues
     if (isServer) {
       config.externals = config.externals || []
-      config.externals.push('bcryptjs')
+      if (Array.isArray(config.externals)) {
+        config.externals.push('bcryptjs')
+      }
     }
     
     return config
