@@ -56,6 +56,38 @@
   }
 }
 
+/* Security: Disable text selection on images and sensitive content */
+.select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Security: Disable pointer events on protected images */
+.pointer-events-none {
+  pointer-events: none;
+}
+
+/* Security: Disable drag and drop */
+.no-drag {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Security: Disable right-click context menu */
+.no-context {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* Custom styles for the fansign app */
 .tabs-list {
   @apply bg-gray-800/40 p-1 rounded-lg;
@@ -133,4 +165,42 @@
 
 .enhanced-tabs .tab-trigger:not([data-state="active"]) {
   @apply hover:bg-purple-900/20;
+}
+
+/* Security: Prevent image saving via CSS */
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Security: Disable print for sensitive content */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Security: Disable developer tools shortcuts */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection only for input fields */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }

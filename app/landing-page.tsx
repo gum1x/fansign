@@ -5,6 +5,24 @@ import { Download, ExternalLink, ImageIcon, PenTool, Sparkles, Zap } from "lucid
 import { Button } from "@/components/ui/button"
 
 export default function LandingPage() {
+  // Security: Disable right-click context menu
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault()
+    return false
+  }
+
+  // Security: Disable drag and drop
+  const handleDragStart = (e: React.DragEvent) => {
+    e.preventDefault()
+    return false
+  }
+
+  // Security: Disable image selection
+  const handleSelectStart = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    return false
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       {/* Hero Section */}
@@ -83,52 +101,50 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { 
-                name: "Classic Sign", 
-                desc: "Illuminated letters",
+                name: "Classic Sign",
                 image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1047.JPG-eUk9CLgdVSnDP6Q2CWWt0ahox0GZEn.jpeg"
               },
               { 
-                name: "Bophouse", 
-                desc: "Banner style",
+                name: "Bophouse",
                 image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1064.JPG-fIkmk9Jp6D6OZHlDhoxgpeUDAHzI3w.jpeg"
               },
               { 
-                name: "LIV Digital", 
-                desc: "LED screen effect",
+                name: "LIV Digital",
                 image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1112.JPG-ycFJnZXtoG4d3vQ9BVrXLhIF7NXxgr.jpeg"
               },
               { 
-                name: "Times Square", 
-                desc: "Billboard style",
+                name: "Times Square",
                 image: "/images/times-square-billboard.jpeg"
               },
               { 
-                name: "Handwritten", 
-                desc: "Natural writing",
+                name: "Booty Sign",
                 image: "/images/booty-template.jpeg"
               },
               { 
-                name: "Double Monkey", 
-                desc: "Cursive script",
+                name: "Double Monkey",
                 image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-05%20at%2010.jpg-S12CeanADthNRBsbZztHcKmgSilm0S.jpeg"
               },
               { 
-                name: "Three Cats", 
-                desc: "Card style",
+                name: "Three Cats",
                 image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2025-04-16_03-03-06.jpg-zTOcfTscZ9yF9I0lS86inZ59NpBRAN.jpeg"
               },
               { 
-                name: "LIV Sign", 
-                desc: "Neon effect",
+                name: "LIV Sign",
                 image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1076.JPG-VQMAwjnByZX1oMtvD1Dnwu0A6W90L4.jpeg"
               },
             ].map((style, index) => (
               <div key={index} className="bg-gray-800/50 p-4 rounded-lg border border-purple-700/30 text-center">
-                <div className="w-full h-20 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-md mb-3 flex items-center justify-center overflow-hidden">
+                <div 
+                  className="w-full h-20 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-md mb-3 flex items-center justify-center overflow-hidden"
+                  onContextMenu={handleContextMenu}
+                  onDragStart={handleDragStart}
+                  onSelectStart={handleSelectStart}
+                >
                   <img 
                     src={style.image} 
                     alt={style.name}
-                    className="w-full h-full object-cover rounded-md"
+                    className="w-full h-full object-cover rounded-md select-none pointer-events-none"
+                    draggable={false}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
@@ -141,8 +157,7 @@ export default function LandingPage() {
                     }}
                   />
                 </div>
-                <h3 className="font-semibold text-white mb-1">{style.name}</h3>
-                <p className="text-sm text-gray-400">{style.desc}</p>
+                <h3 className="font-semibold text-white">{style.name}</h3>
               </div>
             ))}
           </div>
