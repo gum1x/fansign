@@ -25,11 +25,9 @@ const nextConfig = {
       },
     ],
   },
-  // Configure for static export on Netlify
-  output: 'export',
+  // Remove static export - use server-side rendering for Netlify
+  // output: 'export', // Removed this line
   trailingSlash: true,
-  skipTrailingSlashRedirect: true,
-  distDir: 'out',
   // Handle environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
