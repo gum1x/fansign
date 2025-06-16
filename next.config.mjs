@@ -32,8 +32,14 @@ const nextConfig = {
   // External packages that should not be bundled
   serverExternalPackages: ['bcryptjs'],
   
-  // Webpack configuration for better builds
+  // Webpack configuration for better builds and module resolution
   webpack: (config, { isServer, dev }) => {
+    // Ensure proper module resolution
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname),
+    }
+    
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,

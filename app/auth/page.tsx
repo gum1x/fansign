@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import LoginForm from '@/components/auth/LoginForm'
-import RegisterForm from '@/components/auth/RegisterForm'
-import { authService } from '@/lib/auth'
-import type { AuthUser } from '@/lib/auth'
+import LoginForm from '../components/auth/LoginForm'
+import RegisterForm from '../components/auth/RegisterForm'
+import { authService } from '../lib/auth'
+import type { AuthUser } from '../lib/auth'
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
