@@ -152,6 +152,7 @@ export default function GeneratePage() {
   const [savedImages, setSavedImages] = useState<Array<{id: string, image: string, style: string, text: string, timestamp: number}>>([])
   const [showParticles, setShowParticles] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Load user and saved images on mount
@@ -205,8 +206,9 @@ export default function GeneratePage() {
   }
 
   const handleGenerate = async () => {
+    // Check if user is logged in first
     if (!user) {
-      alert("Please log in to generate fansigns")
+      setShowLoginPrompt(true)
       return
     }
 
@@ -369,6 +371,28 @@ export default function GeneratePage() {
         </div>
       )}
 
+      {/* Login Prompt Modal */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => setShowLoginPrompt(false)}>
+          <div className="bg-gray-900 rounded-lg border border-purple-700/50 max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-xl font-bold text-white mb-4">Login Required</h3>
+            <p className="text-gray-300 mb-6">
+              You need to create an account or sign in to generate fansigns. It's free and you'll get 10 credits to start!
+            </p>
+            <div className="flex space-x-4">
+              <Button asChild className="flex-1 bg-gradient-to-r from-purple-700 to-violet-900 hover:from-purple-800 hover:to-violet-950">
+                <Link href="/auth">
+                  Sign In / Register
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={() => setShowLoginPrompt(false)} className="border-purple-700/50">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="relative z-10 p-4">
         <div className="max-w-7xl mx-auto">
           <Card className="border-0 bg-black/80 backdrop-blur-xl shadow-[0_0_30px_rgba(138,43,226,0.6)] overflow-hidden">
@@ -382,11 +406,17 @@ export default function GeneratePage() {
                   ✨ Create Your Fansign ✨
                 </CardTitle>
                 <div className="flex items-center space-x-4">
-                  {user && (
+                  {user ? (
                     <div className="flex items-center px-3 py-1 bg-purple-900/30 rounded-full border border-purple-700/50">
                       <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
                       <span className="text-purple-300 text-sm">{user.credits} credits</span>
                     </div>
+                  ) : (
+                    <Button asChild variant="outline" className="border-purple-700/50 text-purple-300">
+                      <Link href="/auth">
+                        Sign In
+                      </Link>
+                    </Button>
                   )}
                   <Link href="/purchase" className="text-purple-300 hover:text-white transition-colors">
                     <CreditCard className="w-5 h-5" />
@@ -601,8 +631,6 @@ export default function GeneratePage() {
                         onClick={handleGenerate}
                         disabled={
                           isGenerating ||
-                          !user ||
-                          (user.credits < getCreditCost()) ||
                           (selectedSign.requiresText && !text.trim()) ||
                           (selectedSign.maxImages > 0 && uploadedImages.filter(Boolean).length === 0)
                         }
@@ -616,7 +644,7 @@ export default function GeneratePage() {
                         ) : !user ? (
                           <>
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Login Required
+                            Login to Generate
                           </>
                         ) : user.credits < getCreditCost() ? (
                           <>

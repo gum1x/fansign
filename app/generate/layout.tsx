@@ -1,10 +1,10 @@
 import type React from "react"
-import AuthGuard from "@/components/auth/AuthGuard"
 
+// Remove AuthGuard - allow anyone to access the generate page
 export default function GenerateLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <AuthGuard>{children}</AuthGuard>
+  return <>{children}</>
 }
