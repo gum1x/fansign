@@ -25,8 +25,11 @@ const nextConfig = {
       },
     ],
   },
-  // Optimize for deployment
-  output: 'standalone',
+  // Configure for static export on Netlify
+  output: 'export',
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
+  distDir: 'out',
   // Handle environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
