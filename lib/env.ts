@@ -22,6 +22,11 @@ function formatUrl(url: string): string {
   // Clean the URL first
   url = url.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
   
+  // Handle Netlify URLs that might not have protocol
+  if (url.includes('netlify.app') && !url.startsWith('http')) {
+    return `https://${url}`
+  }
+  
   // Handle Railway URLs that might not have protocol
   if (url.includes('railway.app') && !url.startsWith('http')) {
     return `https://${url}`
@@ -49,9 +54,11 @@ export const env = {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'placeholder-key'),
   SUPABASE_SERVICE_ROLE_KEY: getEnvVar('SUPABASE_SERVICE_ROLE_KEY', 'placeholder-key'),
 
-  // App URL - Railway integration with safe fallbacks
+  // App URL - Netlify integration with safe fallbacks
   NEXT_PUBLIC_APP_URL: formatUrl(
     getEnvVar('NEXT_PUBLIC_APP_URL') || 
+    getEnvVar('URL') || // Netlify provides this
+    getEnvVar('DEPLOY_URL') || // Netlify deploy preview URL
     getEnvVar('RAILWAY_STATIC_URL') || 
     'http://localhost:3000'
   ),
@@ -63,6 +70,8 @@ export const env = {
   NEXTAUTH_SECRET: getEnvVar('NEXTAUTH_SECRET', 'development-secret-key-32-chars-long'),
   NEXTAUTH_URL: formatUrl(
     getEnvVar('NEXTAUTH_URL') || 
+    getEnvVar('URL') || // Netlify provides this
+    getEnvVar('DEPLOY_URL') || // Netlify deploy preview URL
     getEnvVar('RAILWAY_STATIC_URL') || 
     getEnvVar('NEXT_PUBLIC_APP_URL') || 
     'http://localhost:3000'

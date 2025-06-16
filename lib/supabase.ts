@@ -30,15 +30,18 @@ function validateAndCleanSupabaseKey(key: string, keyName: string): string {
 const cleanSupabaseUrl = supabaseUrl.trim()
 const cleanSupabaseAnonKey = validateAndCleanSupabaseKey(supabaseAnonKey, 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-// Only create Supabase client if we have valid credentials
+// Create Supabase client with proper error handling
 let supabase: any = null
 
 try {
-  if (cleanSupabaseUrl && cleanSupabaseAnonKey && 
+  // Only create client if we have valid credentials
+  if (cleanSupabaseUrl && 
+      cleanSupabaseAnonKey && 
       !cleanSupabaseUrl.includes('placeholder') && 
       !cleanSupabaseAnonKey.includes('placeholder') &&
       cleanSupabaseUrl.startsWith('https://') &&
-      cleanSupabaseAnonKey.startsWith('eyJ')) {
+      cleanSupabaseAnonKey.length > 20) {
+    
     supabase = createClient(
       cleanSupabaseUrl,
       cleanSupabaseAnonKey,
@@ -55,9 +58,15 @@ try {
         }
       }
     )
-    console.log('✅ Supabase client initialized successfully')
+    
+    // Only log success in development
+    if (env.isDevelopment) {
+      console.log('✅ Supabase client initialized successfully')
+    }
   } else {
-    console.warn('⚠️ Supabase credentials not configured, running in demo mode')
+    if (env.isDevelopment) {
+      console.warn('⚠️ Supabase credentials not configured, running in demo mode')
+    }
   }
 } catch (error) {
   console.error('Failed to initialize Supabase client:', error)

@@ -40,3 +40,13 @@
 # Netlify Next.js Runtime
 [functions.nextjs]
   included_files = ["app/**", "pages/**", "public/**", "styles/**", "next.config.mjs", "package.json"]
+
+# Environment variable handling
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "production"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "production"

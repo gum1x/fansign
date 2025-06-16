@@ -10,6 +10,108 @@ A Next.js application for generating custom fansigns with AI-powered text render
 - Cryptocurrency payments via OxaPay
 - Real-time image processing
 
+## Netlify Deployment
+
+### Required Environment Variables
+
+Set these in your Netlify project dashboard (Site settings → Environment variables):
+
+```bash
+# Supabase Configuration (Required)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# Security (Required)
+NEXTAUTH_SECRET=your-32-character-random-secret-key
+
+# Payment Configuration (Optional)
+OXAPAY_MERCHANT_KEY=your-oxapay-merchant-key
+```
+
+**⚠️ IMPORTANT**: When copying your Supabase keys, make sure there are **NO extra spaces, newlines, or quotes**. Copy the key exactly as shown in your Supabase dashboard.
+
+**Note**: Netlify automatically provides `URL` and `DEPLOY_URL` which will be used for `NEXT_PUBLIC_APP_URL` and `NEXTAUTH_URL`. You don't need to set these manually unless you want to override them.
+
+### Step-by-Step Netlify Setup
+
+1. **Connect Repository**
+   - Go to [Netlify](https://netlify.com)
+   - Click "New site from Git"
+   - Connect your GitHub repository
+   - Select your repository
+
+2. **Build Settings**
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+   - Node version: 18 (set in Environment variables: `NODE_VERSION=18`)
+
+3. **Set Environment Variables**
+   - Go to Site settings → Environment variables
+   - Add the required variables listed above
+   - **CRITICAL**: When pasting Supabase keys, ensure no extra characters:
+     - ✅ `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+     - ❌ `"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+     - ❌ `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\n`
+
+4. **Supabase Setup**
+   - Create a [Supabase](https://supabase.com) project
+   - Go to Settings → API to get your keys
+   - **Copy keys carefully** - no quotes, no newlines, no extra spaces
+   - Run the SQL migrations in the Query Editor:
+     ```sql
+     -- Copy and paste the contents of supabase/migrations/20250616010557_dry_hall.sql
+     -- Then copy and paste the contents of supabase/migrations/20250616013732_small_cell.sql
+     ```
+
+5. **Generate Secrets**
+   - For `NEXTAUTH_SECRET`, generate a random 32-character string:
+     ```bash
+     openssl rand -base64 32
+     ```
+
+6. **Deploy**
+   - Netlify will automatically deploy when you push to your main branch
+   - Your app will be available at `https://your-site-name.netlify.app`
+
+### Common Netlify Issues
+
+#### ❌ "Invalid Header Value" Error
+This happens when your Supabase keys have extra characters:
+- **Problem**: `"Bearer \n=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+- **Solution**: Re-copy your Supabase keys without quotes or newlines
+- **Fix**: In Netlify dashboard, delete and re-add the environment variables
+
+#### ❌ Build Failures
+- Ensure all required environment variables are set
+- Check Netlify deploy logs for specific error messages
+- Make sure Supabase credentials are correct and properly formatted
+
+#### ❌ Environment Variables Not Loading
+- Netlify doesn't read `.env.local` files
+- All environment variables must be set in the Netlify dashboard
+- After adding variables, trigger a new deploy
+
+### How to Fix Environment Variable Issues
+
+1. **Go to Netlify Dashboard**
+2. **Click Site settings → Environment variables**
+3. **Delete problematic variables**
+4. **Re-add them carefully**:
+   - Copy from Supabase dashboard
+   - Paste directly (no quotes)
+   - Ensure no extra spaces or newlines
+   - Save each variable
+5. **Trigger new deploy**
+
+### OxaPay Setup (Optional)
+
+For cryptocurrency payments:
+
+1. Create an [OxaPay](https://oxapay.com) merchant account
+2. Set your callback URL to: `https://your-site.netlify.app/api/payments/callback`
+3. Add your merchant key to `OXAPAY_MERCHANT_KEY`
+
 ## Railway Deployment
 
 ### Required Environment Variables
@@ -29,80 +131,7 @@ NEXTAUTH_SECRET=your-32-character-random-secret-key
 OXAPAY_MERCHANT_KEY=your-oxapay-merchant-key
 ```
 
-**⚠️ IMPORTANT**: When copying your Supabase keys, make sure there are **NO extra spaces, newlines, or quotes**. Copy the key exactly as shown in your Supabase dashboard.
-
 **Note**: Railway automatically provides `RAILWAY_STATIC_URL` which will be used for `NEXT_PUBLIC_APP_URL` and `NEXTAUTH_URL`. You don't need to set these manually unless you want to override them.
-
-### Step-by-Step Railway Setup
-
-1. **Connect Repository**
-   - Go to [Railway](https://railway.app)
-   - Click "New Project" → "Deploy from GitHub repo"
-   - Select your repository
-
-2. **Set Environment Variables**
-   - Go to your project dashboard
-   - Click "Variables" tab
-   - Add the required variables listed above
-   - **CRITICAL**: When pasting Supabase keys, ensure no extra characters:
-     - ✅ `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-     - ❌ `"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-     - ❌ `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\n`
-
-3. **Supabase Setup**
-   - Create a [Supabase](https://supabase.com) project
-   - Go to Settings → API to get your keys
-   - **Copy keys carefully** - no quotes, no newlines, no extra spaces
-   - Run the SQL migrations in the Query Editor:
-     ```sql
-     -- Copy and paste the contents of supabase/migrations/20250616010557_dry_hall.sql
-     -- Then copy and paste the contents of supabase/migrations/20250616013732_small_cell.sql
-     ```
-
-4. **Generate Secrets**
-   - For `NEXTAUTH_SECRET`, generate a random 32-character string:
-     ```bash
-     openssl rand -base64 32
-     ```
-
-5. **Deploy**
-   - Railway will automatically deploy when you push to your main branch
-   - Your app will be available at `https://your-app.railway.app`
-
-### Common Railway Issues
-
-#### ❌ "Invalid Header Value" Error
-This happens when your Supabase keys have extra characters:
-- **Problem**: `"Bearer \n=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-- **Solution**: Re-copy your Supabase keys without quotes or newlines
-- **Fix**: In Railway dashboard, delete and re-add the environment variables
-
-#### ❌ URL Format Error
-If you see "Invalid URL" errors, make sure you're NOT setting `NEXT_PUBLIC_APP_URL` manually. Railway provides `RAILWAY_STATIC_URL` which the app will automatically format correctly.
-
-#### ❌ Build Failures
-- Ensure all required environment variables are set
-- Check Railway logs for specific error messages
-- Make sure Supabase credentials are correct and properly formatted
-
-### How to Fix Environment Variable Issues
-
-1. **Go to Railway Dashboard**
-2. **Click "Variables" tab**
-3. **Delete problematic variables**
-4. **Re-add them carefully**:
-   - Copy from Supabase dashboard
-   - Paste directly (no quotes)
-   - Ensure no extra spaces or newlines
-   - Save each variable
-
-### OxaPay Setup (Optional)
-
-For cryptocurrency payments:
-
-1. Create an [OxaPay](https://oxapay.com) merchant account
-2. Set your callback URL to: `https://your-app.railway.app/api/payments/callback`
-3. Add your merchant key to `OXAPAY_MERCHANT_KEY`
 
 ## Local Development
 
@@ -166,17 +195,17 @@ This is a **dynamic site** with:
 **Problem**: `TypeError: Headers.set: "Bearer \n=eyJ..." is an invalid header value`
 
 **Solution**:
-1. Go to Railway dashboard → Variables
+1. Go to Netlify/Railway dashboard → Environment variables
 2. Delete `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`
 3. Go to your Supabase dashboard → Settings → API
 4. Copy the keys **exactly** as shown (no quotes, no newlines)
-5. Paste them back into Railway variables
+5. Paste them back into Netlify/Railway variables
 6. Redeploy
 
 ### 🔧 Build Issues
 - Ensure all required environment variables are set
-- Check Railway logs for specific error messages
-- Don't manually set URL variables - let Railway handle them
+- Check deployment logs for specific error messages
+- Don't manually set URL variables - let the platform handle them
 
 ### 🔧 Database Issues
 - Verify Supabase URL and keys are correct and clean
@@ -185,7 +214,7 @@ This is a **dynamic site** with:
 
 ### 🔧 Authentication Issues
 - Verify `NEXTAUTH_SECRET` is set and secure
-- Let Railway auto-configure URLs via `RAILWAY_STATIC_URL`
+- Let platform auto-configure URLs via platform-provided variables
 - Ensure Supabase RLS policies are properly configured
 
-For more help, check the Railway logs or contact support.
+For more help, check the deployment logs or contact support.
