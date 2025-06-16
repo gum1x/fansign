@@ -1,7 +1,7 @@
 import type React from "react"
 import AuthGuard from "@/components/auth/AuthGuard"
 
-export default function GenerateLayout({
+export default function PurchaseLayout({
   children,
 }: {
   children: React.ReactNode
