@@ -5,9 +5,34 @@ import { env } from './env'
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+// Additional validation and cleaning for Supabase keys
+function validateAndCleanSupabaseKey(key: string, keyName: string): string {
+  if (!key || key === 'placeholder-key') {
+    console.warn(`⚠️ ${keyName} is not properly configured`)
+    return key
+  }
+  
+  // Clean the key thoroughly
+  const cleanKey = key.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
+  
+  // Validate key format
+  if (keyName.includes('ANON') && !cleanKey.startsWith('eyJ')) {
+    console.warn(`⚠️ ${keyName} appears to be malformed (should start with 'eyJ')`)
+  }
+  
+  if (keyName.includes('SERVICE') && !cleanKey.startsWith('eyJ')) {
+    console.warn(`⚠️ ${keyName} appears to be malformed (should start with 'eyJ')`)
+  }
+  
+  return cleanKey
+}
+
+const cleanSupabaseUrl = supabaseUrl.trim()
+const cleanSupabaseAnonKey = validateAndCleanSupabaseKey(supabaseAnonKey, 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
+
 export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
+  cleanSupabaseUrl,
+  cleanSupabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,

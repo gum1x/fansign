@@ -29,6 +29,8 @@ NEXTAUTH_SECRET=your-32-character-random-secret-key
 OXAPAY_MERCHANT_KEY=your-oxapay-merchant-key
 ```
 
+**⚠️ IMPORTANT**: When copying your Supabase keys, make sure there are **NO extra spaces, newlines, or quotes**. Copy the key exactly as shown in your Supabase dashboard.
+
 **Note**: Railway automatically provides `RAILWAY_STATIC_URL` which will be used for `NEXT_PUBLIC_APP_URL` and `NEXTAUTH_URL`. You don't need to set these manually unless you want to override them.
 
 ### Step-by-Step Railway Setup
@@ -42,11 +44,15 @@ OXAPAY_MERCHANT_KEY=your-oxapay-merchant-key
    - Go to your project dashboard
    - Click "Variables" tab
    - Add the required variables listed above
-   - **Important**: Don't set `NEXT_PUBLIC_APP_URL` or `NEXTAUTH_URL` - Railway will handle these automatically
+   - **CRITICAL**: When pasting Supabase keys, ensure no extra characters:
+     - ✅ `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+     - ❌ `"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+     - ❌ `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\n`
 
 3. **Supabase Setup**
    - Create a [Supabase](https://supabase.com) project
    - Go to Settings → API to get your keys
+   - **Copy keys carefully** - no quotes, no newlines, no extra spaces
    - Run the SQL migrations in the Query Editor:
      ```sql
      -- Copy and paste the contents of supabase/migrations/20250616010557_dry_hall.sql
@@ -65,13 +71,30 @@ OXAPAY_MERCHANT_KEY=your-oxapay-merchant-key
 
 ### Common Railway Issues
 
-#### URL Format Error
+#### ❌ "Invalid Header Value" Error
+This happens when your Supabase keys have extra characters:
+- **Problem**: `"Bearer \n=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+- **Solution**: Re-copy your Supabase keys without quotes or newlines
+- **Fix**: In Railway dashboard, delete and re-add the environment variables
+
+#### ❌ URL Format Error
 If you see "Invalid URL" errors, make sure you're NOT setting `NEXT_PUBLIC_APP_URL` manually. Railway provides `RAILWAY_STATIC_URL` which the app will automatically format correctly.
 
-#### Build Failures
+#### ❌ Build Failures
 - Ensure all required environment variables are set
 - Check Railway logs for specific error messages
-- Make sure Supabase credentials are correct
+- Make sure Supabase credentials are correct and properly formatted
+
+### How to Fix Environment Variable Issues
+
+1. **Go to Railway Dashboard**
+2. **Click "Variables" tab**
+3. **Delete problematic variables**
+4. **Re-add them carefully**:
+   - Copy from Supabase dashboard
+   - Paste directly (no quotes)
+   - Ensure no extra spaces or newlines
+   - Save each variable
 
 ### OxaPay Setup (Optional)
 
@@ -91,6 +114,7 @@ npm install
 cp .env.example .env.local
 
 # Fill in your environment variables in .env.local
+# IMPORTANT: No quotes, no newlines, no extra spaces
 
 # Run development server
 npm run dev
@@ -137,17 +161,29 @@ This is a **dynamic site** with:
 
 ## Troubleshooting
 
-### Build Issues
+### 🔧 Environment Variable Issues
+
+**Problem**: `TypeError: Headers.set: "Bearer \n=eyJ..." is an invalid header value`
+
+**Solution**:
+1. Go to Railway dashboard → Variables
+2. Delete `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`
+3. Go to your Supabase dashboard → Settings → API
+4. Copy the keys **exactly** as shown (no quotes, no newlines)
+5. Paste them back into Railway variables
+6. Redeploy
+
+### 🔧 Build Issues
 - Ensure all required environment variables are set
 - Check Railway logs for specific error messages
 - Don't manually set URL variables - let Railway handle them
 
-### Database Issues
-- Verify Supabase URL and keys are correct
+### 🔧 Database Issues
+- Verify Supabase URL and keys are correct and clean
 - Ensure database migrations have been run
 - Check Supabase dashboard for connection issues
 
-### Authentication Issues
+### 🔧 Authentication Issues
 - Verify `NEXTAUTH_SECRET` is set and secure
 - Let Railway auto-configure URLs via `RAILWAY_STATIC_URL`
 - Ensure Supabase RLS policies are properly configured

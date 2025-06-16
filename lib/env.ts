@@ -3,7 +3,9 @@
 
 function getEnvVar(key: string, defaultValue: string = ''): string {
   try {
-    return process.env[key] || defaultValue
+    const value = process.env[key] || defaultValue
+    // Clean up the value by removing any whitespace, newlines, or quotes
+    return value.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
   } catch (error) {
     console.warn(`Warning: Could not access environment variable ${key}`)
     return defaultValue
@@ -14,6 +16,9 @@ function formatUrl(url: string): string {
   if (!url || url === 'undefined' || url === 'null') {
     return 'http://localhost:3000'
   }
+  
+  // Clean the URL first
+  url = url.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
   
   // Ensure URL has protocol
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
