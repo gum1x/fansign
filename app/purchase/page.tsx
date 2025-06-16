@@ -1,23 +1,22 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, CreditCard, Star, Zap, Crown, Sparkles } from 'lucide-react'
+import { ArrowLeft, CreditCard, Star, Zap, Crown, Sparkles, ExternalLink, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { authService } from '@/lib/auth'
-import { CREDIT_PACKAGES } from '@/lib/stripe'
-import { loadStripe } from '@stripe/stripe-js'
+import { CREDIT_PACKAGES } from '@/lib/oxapay'
 import type { AuthUser } from '@/lib/auth'
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 export default function PurchasePage() {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser()
@@ -26,7 +25,18 @@ export default function PurchasePage() {
       return
     }
     setUser(currentUser)
-  }, [router])
+
+    // Check for success parameter
+    if (searchParams?.get('success') === 'true') {
+      setShowSuccess(true)
+      // Refresh user data to get updated credits
+      authService.refreshUserData().then(updatedUser => {
+        if (updatedUser) {
+          setUser(updatedUser)
+        }
+      })
+    }
+  }, [router, searchParams])
 
   const handlePurchase = async (packageId: string) => {
     if (!user) return
@@ -35,8 +45,8 @@ export default function PurchasePage() {
     setSelectedPackage(packageId)
 
     try {
-      // Create payment intent
-      const response = await fetch('/api/payments/create-intent', {
+      // Create OxaPay payment
+      const response = await fetch('/api/payments/create-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,32 +63,39 @@ export default function PurchasePage() {
         throw new Error(data.error || 'Failed to create payment')
       }
 
-      // Redirect to Stripe Checkout
-      const stripe = await stripePromise
-      if (!stripe) {
-        throw new Error('Stripe failed to load')
-      }
-
-      const { error } = await stripe.confirmCardPayment(data.clientSecret, {
-        payment_method: {
-          card: {
-            // This would normally be a card element, but for demo purposes
-            // we'll redirect to a hosted checkout page instead
+      // Redirect to OxaPay payment page
+      if (data.payLink) {
+        window.open(data.payLink, '_blank')
+        
+        // Start polling for payment status
+        const trackId = data.trackId
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusResponse = await fetch(`/api/payments/status/${trackId}`)
+            const statusData = await statusResponse.json()
+            
+            if (statusData.status === 'completed') {
+              clearInterval(pollInterval)
+              // Refresh user data
+              const updatedUser = await authService.refreshUserData()
+              if (updatedUser) {
+                setUser(updatedUser)
+              }
+              setShowSuccess(true)
+            } else if (statusData.status === 'failed') {
+              clearInterval(pollInterval)
+              alert('Payment failed. Please try again.')
+            }
+          } catch (error) {
+            console.error('Status polling error:', error)
           }
-        }
-      })
+        }, 5000) // Poll every 5 seconds
 
-      if (error) {
-        throw new Error(error.message)
+        // Stop polling after 10 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval)
+        }, 600000)
       }
-
-      // Refresh user data to get updated credits
-      const updatedUser = await authService.refreshUserData()
-      if (updatedUser) {
-        setUser(updatedUser)
-      }
-
-      alert('Payment successful! Credits have been added to your account.')
     } catch (error) {
       console.error('Purchase error:', error)
       alert('Purchase failed. Please try again.')
@@ -92,6 +109,42 @@ export default function PurchasePage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    )
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-4">
+        <div className="max-w-2xl mx-auto">
+          <Card className="border-0 bg-black/80 backdrop-blur-sm shadow-[0_0_15px_rgba(138,43,226,0.5)]">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-green-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-400" />
+              </div>
+              <h2 className="text-2xl font-bold mb-4 text-white">Payment Successful!</h2>
+              <p className="text-gray-300 mb-6">
+                Your credits have been added to your account. You can now create more amazing fansigns!
+              </p>
+              <div className="inline-flex items-center px-4 py-2 bg-purple-900/30 rounded-full border border-purple-700/50 mb-6">
+                <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
+                <span className="text-purple-300">Current Balance: {user.credits} credits</span>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild className="bg-gradient-to-r from-purple-700 to-violet-900 hover:from-purple-800 hover:to-violet-950">
+                  <Link href="/generate">
+                    Start Creating
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="border-purple-700/50">
+                  <Link href="/purchase" onClick={() => setShowSuccess(false)}>
+                    Buy More Credits
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
@@ -120,6 +173,11 @@ export default function PurchasePage() {
               </div>
               <h2 className="text-2xl font-bold mb-2 text-white">Choose Your Credit Package</h2>
               <p className="text-gray-300">Each fansign generation costs 1-3 credits depending on the style</p>
+              <div className="mt-4 p-3 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+                <p className="text-blue-300 text-sm">
+                  💰 Pay with cryptocurrency via OxaPay - Bitcoin, Ethereum, USDT and more accepted!
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -152,10 +210,10 @@ export default function PurchasePage() {
 
                       <h3 className="text-xl font-bold text-white mb-2">{pkg.name}</h3>
                       <div className="text-3xl font-bold text-purple-400 mb-1">
-                        ${(pkg.price / 100).toFixed(2)}
+                        ${pkg.price.toFixed(2)}
                       </div>
                       <p className="text-gray-400 text-sm mb-4">
-                        ${((pkg.price / 100) / pkg.credits).toFixed(2)} per credit
+                        ${(pkg.price / pkg.credits).toFixed(2)} per credit
                       </p>
 
                       <div className="space-y-2 mb-6">
@@ -184,8 +242,8 @@ export default function PurchasePage() {
                           </>
                         ) : (
                           <>
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            Purchase
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Pay with Crypto
                           </>
                         )}
                       </Button>
@@ -216,9 +274,35 @@ export default function PurchasePage() {
               </div>
             </div>
 
+            <div className="mt-6 p-4 bg-blue-900/20 rounded-lg border border-blue-700/30">
+              <h4 className="text-lg font-semibold text-blue-300 mb-2">Why OxaPay?</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-2">
+                  <div className="flex items-center text-blue-200">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                    Accept 100+ cryptocurrencies
+                  </div>
+                  <div className="flex items-center text-blue-200">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                    Fast and secure payments
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center text-blue-200">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                    Low transaction fees
+                  </div>
+                  <div className="flex items-center text-blue-200">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                    No registration required
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-6 text-center">
               <p className="text-gray-400 text-sm">
-                Secure payments powered by Stripe • Credits never expire • Instant delivery
+                Secure cryptocurrency payments powered by OxaPay • Credits never expire • Instant delivery
               </p>
             </div>
           </CardContent>

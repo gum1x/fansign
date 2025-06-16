@@ -21,7 +21,6 @@
     "next": "15.2.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "stripe": "^14.15.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7"
   },

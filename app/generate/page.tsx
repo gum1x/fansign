@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Download, Upload, RefreshCw, ImageIcon, Save, Trash2, Sparkles, Zap, Star, Heart } from "lucide-react"
+import { ArrowLeft, Download, Upload, RefreshCw, ImageIcon, Save, Trash2, Sparkles, Zap, Star, Heart, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { processSignImage } from "@/utils/processSignImage"
 import { processBophouseImage } from "@/utils/processBophouseImage"
@@ -17,6 +17,9 @@ import { processDoubleMonkeyImage } from "@/utils/processDoubleMonkeyImage"
 import { processThreeCatsImage } from "@/utils/processThreeCatsImage"
 import { processTimesSquareImage } from "@/utils/processTimesSquareImage"
 import { processTimesSquareNewImage } from "@/utils/processTimesSquareNewImage"
+import { authService } from "@/lib/auth"
+import { GENERATION_COSTS } from "@/lib/oxapay"
+import type { AuthUser } from "@/lib/auth"
 
 const signOptions = [
   {
@@ -148,10 +151,14 @@ export default function GeneratePage() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [savedImages, setSavedImages] = useState<Array<{id: string, image: string, style: string, text: string, timestamp: number}>>([])
   const [showParticles, setShowParticles] = useState(false)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Load saved images from localStorage on mount
+  // Load user and saved images on mount
   useEffect(() => {
+    const currentUser = authService.getCurrentUser()
+    setUser(currentUser)
+
     const saved = localStorage.getItem('savedFansigns')
     if (saved) {
       try {
@@ -198,6 +205,11 @@ export default function GeneratePage() {
   }
 
   const handleGenerate = async () => {
+    if (!user) {
+      alert("Please log in to generate fansigns")
+      return
+    }
+
     if (selectedSign.requiresText && !text.trim()) {
       alert("Please enter some text for your fansign")
       return
@@ -208,11 +220,48 @@ export default function GeneratePage() {
       return
     }
 
+    // Check credit cost
+    const creditCost = GENERATION_COSTS[selectedSign.id as keyof typeof GENERATION_COSTS] || 1
+    
+    if (user.credits < creditCost) {
+      alert(`Insufficient credits. This style costs ${creditCost} credits. You have ${user.credits} credits.`)
+      return
+    }
+
     setIsGenerating(true)
     setGeneratedImage(null)
     setShowParticles(true)
 
     try {
+      // Deduct credits first
+      const deductResponse = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          style: selectedSign.id,
+          textContent: text,
+          imageUrl: uploadedImages[0] || null
+        }),
+      })
+
+      const deductData = await deductResponse.json()
+
+      if (!deductResponse.ok) {
+        if (deductResponse.status === 402) {
+          alert(`Insufficient credits. This style costs ${deductData.required} credits. You have ${deductData.available} credits.`)
+          return
+        }
+        throw new Error(deductData.error || 'Failed to process payment')
+      }
+
+      // Update user credits locally
+      const updatedUser = { ...user, credits: deductData.remainingCredits }
+      setUser(updatedUser)
+
+      // Generate the image
       let result: string | false
 
       if (selectedSign.id === "times-square") {
@@ -289,6 +338,10 @@ export default function GeneratePage() {
     setGeneratedImage(null)
   }
 
+  const getCreditCost = () => {
+    return GENERATION_COSTS[selectedSign.id as keyof typeof GENERATION_COSTS] || 1
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/20 to-black text-white relative overflow-hidden">
       {/* Animated background particles */}
@@ -328,7 +381,17 @@ export default function GeneratePage() {
                 <CardTitle className="text-center text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-300 to-violet-400 animate-pulse">
                   ✨ Create Your Fansign ✨
                 </CardTitle>
-                <div className="w-5"></div>
+                <div className="flex items-center space-x-4">
+                  {user && (
+                    <div className="flex items-center px-3 py-1 bg-purple-900/30 rounded-full border border-purple-700/50">
+                      <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
+                      <span className="text-purple-300 text-sm">{user.credits} credits</span>
+                    </div>
+                  )}
+                  <Link href="/purchase" className="text-purple-300 hover:text-white transition-colors">
+                    <CreditCard className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             </CardHeader>
 
@@ -367,67 +430,75 @@ export default function GeneratePage() {
                   {/* Styles Grid */}
                   <div className="p-6 max-h-[calc(80vh-200px)] overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-2 gap-4">
-                      {filteredSignOptions.map((option) => (
-                        <div
-                          key={option.id}
-                          className={`relative group cursor-pointer transition-all duration-300 ${
-                            selectedSign.id === option.id
-                              ? "transform scale-105"
-                              : "hover:scale-102"
-                          }`}
-                          onClick={() => setSelectedSign(option)}
-                        >
+                      {filteredSignOptions.map((option) => {
+                        const creditCost = GENERATION_COSTS[option.id as keyof typeof GENERATION_COSTS] || 1
+                        return (
                           <div
-                            className={`relative p-4 rounded-xl border transition-all duration-300 ${
+                            key={option.id}
+                            className={`relative group cursor-pointer transition-all duration-300 ${
                               selectedSign.id === option.id
-                                ? "bg-gradient-to-br from-purple-700/40 to-pink-700/40 border-purple-400 shadow-lg shadow-purple-500/30"
-                                : "bg-gray-800/50 border-purple-900/30 hover:bg-gray-800/70 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-500/20"
+                                ? "transform scale-105"
+                                : "hover:scale-102"
                             }`}
+                            onClick={() => setSelectedSign(option)}
                           >
-                            {/* Popular badge */}
-                            {option.popular && (
-                              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                ⭐ Popular
-                              </div>
-                            )}
-
-                            <div 
-                              className="flex items-center justify-center w-full h-20 bg-gray-700/30 rounded-lg mb-3 overflow-hidden relative"
-                              onContextMenu={handleContextMenu}
-                              onDragStart={handleDragStart}
+                            <div
+                              className={`relative p-4 rounded-xl border transition-all duration-300 ${
+                                selectedSign.id === option.id
+                                  ? "bg-gradient-to-br from-purple-700/40 to-pink-700/40 border-purple-400 shadow-lg shadow-purple-500/30"
+                                  : "bg-gray-800/50 border-purple-900/30 hover:bg-gray-800/70 hover:border-purple-700/50 hover:shadow-lg hover:shadow-purple-500/20"
+                              }`}
                             >
-                              <img 
-                                src={option.previewImage} 
-                                alt={option.name}
-                                className="w-full h-full object-cover rounded-lg select-none pointer-events-none transition-transform duration-300 group-hover:scale-110"
-                                draggable={false}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    parent.innerHTML = '<svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
-                                  }
-                                }}
-                              />
-                              {selectedSign.id === option.id && (
-                                <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                                    <span className="text-white text-lg">✓</span>
-                                  </div>
+                              {/* Popular badge */}
+                              {option.popular && (
+                                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                  ⭐ Popular
                                 </div>
                               )}
+
+                              {/* Credit cost badge */}
+                              <div className="absolute -top-2 -left-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                {creditCost} credit{creditCost > 1 ? 's' : ''}
+                              </div>
+
+                              <div 
+                                className="flex items-center justify-center w-full h-20 bg-gray-700/30 rounded-lg mb-3 overflow-hidden relative"
+                                onContextMenu={handleContextMenu}
+                                onDragStart={handleDragStart}
+                              >
+                                <img 
+                                  src={option.previewImage} 
+                                  alt={option.name}
+                                  className="w-full h-full object-cover rounded-lg select-none pointer-events-none transition-transform duration-300 group-hover:scale-110"
+                                  draggable={false}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = '<svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
+                                    }
+                                  }}
+                                />
+                                {selectedSign.id === option.id && (
+                                  <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                      <span className="text-white text-lg">✓</span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <h4 className="font-semibold text-white text-center text-sm">{option.name}</h4>
+                              {option.maxImages > 0 && (
+                                <p className="text-xs text-purple-300 text-center mt-1">
+                                  {option.maxImages} image{option.maxImages > 1 ? "s" : ""}
+                                </p>
+                              )}
                             </div>
-                            
-                            <h4 className="font-semibold text-white text-center text-sm">{option.name}</h4>
-                            {option.maxImages > 0 && (
-                              <p className="text-xs text-purple-300 text-center mt-1">
-                                {option.maxImages} image{option.maxImages > 1 ? "s" : ""}
-                              </p>
-                            )}
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
@@ -439,6 +510,22 @@ export default function GeneratePage() {
                       <Zap className="w-5 h-5 mr-2" />
                       Customize {selectedSign.name}
                     </h3>
+
+                    {/* Credit cost display */}
+                    <div className="mb-6 p-3 bg-purple-900/20 border border-purple-700/30 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-300 text-sm">Generation Cost:</span>
+                        <div className="flex items-center">
+                          <Sparkles className="w-4 h-4 mr-1 text-purple-400" />
+                          <span className="text-purple-300 font-semibold">{getCreditCost()} credit{getCreditCost() > 1 ? 's' : ''}</span>
+                        </div>
+                      </div>
+                      {user && user.credits < getCreditCost() && (
+                        <div className="mt-2 text-red-400 text-sm">
+                          ⚠️ Insufficient credits. You need {getCreditCost() - user.credits} more credits.
+                        </div>
+                      )}
+                    </div>
 
                     <div className="space-y-6 flex-1">
                       {selectedSign.requiresText && (
@@ -514,6 +601,8 @@ export default function GeneratePage() {
                         onClick={handleGenerate}
                         disabled={
                           isGenerating ||
+                          !user ||
+                          (user.credits < getCreditCost()) ||
                           (selectedSign.requiresText && !text.trim()) ||
                           (selectedSign.maxImages > 0 && uploadedImages.filter(Boolean).length === 0)
                         }
@@ -524,10 +613,20 @@ export default function GeneratePage() {
                             <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                             Generating...
                           </>
+                        ) : !user ? (
+                          <>
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Login Required
+                          </>
+                        ) : user.credits < getCreditCost() ? (
+                          <>
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Need Credits
+                          </>
                         ) : (
                           <>
                             <Sparkles className="w-4 h-4 mr-2" />
-                            Generate
+                            Generate ({getCreditCost()} credit{getCreditCost() > 1 ? 's' : ''})
                           </>
                         )}
                       </Button>
@@ -540,6 +639,26 @@ export default function GeneratePage() {
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
+
+                    {!user && (
+                      <div className="mt-4 p-3 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+                        <p className="text-blue-300 text-sm text-center">
+                          <Link href="/auth" className="underline hover:text-blue-200">
+                            Sign in or create an account
+                          </Link> to start generating fansigns
+                        </p>
+                      </div>
+                    )}
+
+                    {user && user.credits < getCreditCost() && (
+                      <div className="mt-4 p-3 bg-orange-900/30 border border-orange-700/50 rounded-lg">
+                        <p className="text-orange-300 text-sm text-center">
+                          <Link href="/purchase" className="underline hover:text-orange-200">
+                            Purchase more credits
+                          </Link> to continue generating fansigns
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
