@@ -25,38 +25,66 @@ const nextConfig = {
       },
     ],
   },
-  // Remove static export - use server-side rendering for dynamic functionality
+  // Use standalone output for Railway
+  output: 'standalone',
   trailingSlash: true,
-  // Handle environment variables
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
+  
   // Webpack configuration for better builds
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         net: false,
         tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
       }
     }
     
-    // Ignore critical dependency warnings from Supabase Realtime
+    // Ignore critical dependency warnings
     config.ignoreWarnings = [
-      { module: /@supabase\/realtime-js/ }
+      { module: /@supabase\/realtime-js/ },
+      { module: /bcryptjs/ },
+      /Critical dependency/,
     ]
+    
+    // Handle bcryptjs properly
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push('bcryptjs')
+    }
     
     return config
   },
+  
   // Experimental features for better build performance
   experimental: {
     serverComponentsExternalPackages: ['bcryptjs'],
+    esmExternals: 'loose',
   },
-  // Output configuration for Railway
-  output: 'standalone',
-  // Generate static params at build time to avoid runtime errors
-  generateStaticParams: async () => {
+  
+  // Environment variables available at build time
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+  
+  // Disable static optimization for dynamic routes
+  generateStaticParams: false,
+  
+  // Handle redirects and rewrites
+  async redirects() {
+    return []
+  },
+  
+  async rewrites() {
     return []
   },
 }

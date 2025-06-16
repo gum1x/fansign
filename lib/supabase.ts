@@ -1,10 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { env } from './env'
 
-// Create Supabase client with proper error handling
-// Use empty strings as fallbacks during build time when env vars might not be available
-const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+// Create Supabase client with safe fallbacks for build time
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 export const supabase = createClient(
   supabaseUrl,
@@ -56,18 +55,24 @@ export interface Payment {
 
 // Helper function to check if Supabase is properly configured
 export function isSupabaseConfigured(): boolean {
-  return !!(env.NEXT_PUBLIC_SUPABASE_URL && 
-           env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-           env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
-           env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 20 &&
-           env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
-           env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder-key')
+  // During build time, always return false to prevent API calls
+  if (env.isBuild || typeof window === 'undefined') {
+    return false
+  }
+  
+  return !!(
+    env.NEXT_PUBLIC_SUPABASE_URL && 
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 20 &&
+    !env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder') &&
+    !env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes('placeholder')
+  )
 }
 
 // Helper function to handle database errors gracefully
 export function handleDatabaseError(error: any, fallbackMessage: string = 'Database operation failed') {
   if (!isSupabaseConfigured()) {
-    console.warn('⚠️ Supabase not configured, using fallback behavior')
     return { error: 'Database not configured', isConfigError: true }
   }
   
@@ -92,6 +97,11 @@ export function handleDatabaseError(error: any, fallbackMessage: string = 'Datab
 // Test Supabase connection
 export async function testSupabaseConnection(): Promise<{ success: boolean; error?: string }> {
   try {
+    // Skip during build time
+    if (env.isBuild || typeof window === 'undefined') {
+      return { success: false, error: 'Build mode - skipping connection test' }
+    }
+
     if (!isSupabaseConfigured()) {
       return { success: false, error: 'Supabase not configured' }
     }

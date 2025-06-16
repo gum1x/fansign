@@ -94,8 +94,8 @@ export class OxaPayService {
 
   async createPayment(request: OxaPayPaymentRequest): Promise<OxaPayPaymentResponse> {
     try {
-      // Return mock response if no merchant key or in development
-      if (env.isDevelopment || !this.merchantKey || this.merchantKey === 'placeholder-key' || env.isBuild) {
+      // Return mock response if no merchant key, in development, or build mode
+      if (env.isDevelopment || env.isBuild || !this.merchantKey || this.merchantKey === 'placeholder-key') {
         return {
           result: 100,
           message: 'Success (Demo Mode)',
@@ -122,8 +122,8 @@ export class OxaPayService {
 
   async getPaymentStatus(trackId: number): Promise<any> {
     try {
-      // Return mock status if no merchant key or in development
-      if (env.isDevelopment || !this.merchantKey || this.merchantKey === 'placeholder-key' || env.isBuild) {
+      // Return mock status if no merchant key, in development, or build mode
+      if (env.isDevelopment || env.isBuild || !this.merchantKey || this.merchantKey === 'placeholder-key') {
         return {
           result: 100,
           status: 'completed',
@@ -152,15 +152,20 @@ export class OxaPayService {
 
   verifyCallback(callbackData: OxaPayCallbackData, expectedHmac: string): boolean {
     if (env.isDevelopment || env.isBuild) {
-      return true // Skip verification in development
+      return true // Skip verification in development and build
     }
 
     // Verify HMAC signature for security
-    const crypto = require('crypto')
-    const message = `${callbackData.trackId}*${callbackData.type}*${callbackData.status}*${callbackData.amount}*${callbackData.currency}*${callbackData.date}*${callbackData.txID}`
-    const computedHmac = crypto.createHmac('sha512', this.merchantKey).update(message).digest('hex')
-    
-    return computedHmac === expectedHmac
+    try {
+      const crypto = require('crypto')
+      const message = `${callbackData.trackId}*${callbackData.type}*${callbackData.status}*${callbackData.amount}*${callbackData.currency}*${callbackData.date}*${callbackData.txID}`
+      const computedHmac = crypto.createHmac('sha512', this.merchantKey).update(message).digest('hex')
+      
+      return computedHmac === expectedHmac
+    } catch (error) {
+      console.error('HMAC verification error:', error)
+      return false
+    }
   }
 }
 

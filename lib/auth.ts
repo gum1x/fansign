@@ -22,8 +22,8 @@ export class AuthService {
 
   async register(username: string, password: string): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
     try {
-      // Early return if we're in build mode
-      if (env.isBuild) {
+      // Early return if we're in build mode or browser environment not available
+      if (env.isBuild || typeof window === 'undefined') {
         return { success: false, error: 'Service temporarily unavailable' }
       }
 
@@ -79,7 +79,6 @@ export class AuthService {
       this.currentUser = authUser
       this.saveToLocalStorage(authUser)
 
-      console.log('✅ User registered successfully:', username)
       return { success: true, user: authUser }
     } catch (error) {
       console.error('Registration error:', error)
@@ -89,8 +88,8 @@ export class AuthService {
 
   async login(username: string, password: string): Promise<{ success: boolean; error?: string; user?: AuthUser }> {
     try {
-      // Early return if we're in build mode
-      if (env.isBuild) {
+      // Early return if we're in build mode or browser environment not available
+      if (env.isBuild || typeof window === 'undefined') {
         return { success: false, error: 'Service temporarily unavailable' }
       }
 
@@ -132,7 +131,6 @@ export class AuthService {
       this.currentUser = authUser
       this.saveToLocalStorage(authUser)
 
-      console.log('✅ User logged in successfully:', username)
       return { success: true, user: authUser }
     } catch (error) {
       console.error('Login error:', error)
@@ -145,7 +143,6 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_user')
     }
-    console.log('✅ User logged out successfully')
   }
 
   getCurrentUser(): AuthUser | null {
@@ -153,7 +150,7 @@ export class AuthService {
       return this.currentUser
     }
 
-    // Try to load from localStorage
+    // Try to load from localStorage (only in browser)
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('auth_user')
       if (stored) {
@@ -175,7 +172,7 @@ export class AuthService {
     if (!currentUser) return null
 
     // Early return if we're in build mode
-    if (env.isBuild) {
+    if (env.isBuild || typeof window === 'undefined') {
       return currentUser
     }
 
@@ -223,7 +220,7 @@ export class AuthService {
     }
 
     // Early return if we're in build mode
-    if (env.isBuild) {
+    if (env.isBuild || typeof window === 'undefined') {
       return { success: false, error: 'Service temporarily unavailable' }
     }
 
