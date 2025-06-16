@@ -55,6 +55,10 @@ const nextConfig = {
   },
   // Output configuration for Railway
   output: 'standalone',
+  // Generate static params at build time to avoid runtime errors
+  generateStaticParams: async () => {
+    return []
+  },
 }
 
 export default nextConfig

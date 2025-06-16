@@ -5,15 +5,29 @@ export const env = {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 
-  // App
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  // App - Fix Railway URL format
+  NEXT_PUBLIC_APP_URL: (() => {
+    const url = process.env.NEXT_PUBLIC_APP_URL || process.env.RAILWAY_STATIC_URL || 'http://localhost:3000'
+    // Ensure URL has protocol
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`
+    }
+    return url
+  })(),
 
   // Payment
   OXAPAY_MERCHANT_KEY: process.env.OXAPAY_MERCHANT_KEY || '',
 
   // Security
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'development-secret-key',
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  NEXTAUTH_URL: (() => {
+    const url = process.env.NEXTAUTH_URL || process.env.RAILWAY_STATIC_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    // Ensure URL has protocol
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`
+    }
+    return url
+  })(),
 
   // Node environment
   NODE_ENV: process.env.NODE_ENV || 'development',
