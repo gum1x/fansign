@@ -12,15 +12,15 @@ const galleryItems = [
     title: "Classic Illuminated Sign",
     style: "Classic Sign",
     text: "HELLO WORLD",
-    image: "/placeholder.svg",
+    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1047.JPG-eUk9CLgdVSnDP6Q2CWWt0ahox0GZEn.jpeg",
     downloads: 1234,
   },
   {
     id: 2,
     title: "Handwritten Note",
-    style: "Handwritten",
+    style: "Booty Sign",
     text: "Love you",
-    image: "/placeholder.svg",
+    image: "/images/booty-template.jpeg",
     downloads: 856,
   },
   {
@@ -28,7 +28,7 @@ const galleryItems = [
     title: "Neon Glow Effect",
     style: "LIV Sign",
     text: "PARTY TIME",
-    image: "/placeholder.svg",
+    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1076.JPG-VQMAwjnByZX1oMtvD1Dnwu0A6W90L4.jpeg",
     downloads: 2341,
   },
   {
@@ -36,7 +36,7 @@ const galleryItems = [
     title: "Times Square Billboard",
     style: "Times Square",
     text: "Custom Image",
-    image: "/placeholder.svg",
+    image: "/images/times-square-billboard.jpeg",
     downloads: 567,
   },
   {
@@ -44,7 +44,7 @@ const galleryItems = [
     title: "Cursive Script",
     style: "Double Monkey",
     text: "Beautiful",
-    image: "/placeholder.svg",
+    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-05%20at%2010.jpg-S12CeanADthNRBsbZztHcKmgSilm0S.jpeg",
     downloads: 789,
   },
   {
@@ -52,8 +52,24 @@ const galleryItems = [
     title: "Digital Display",
     style: "LIV Digital",
     text: "TECH VIBES",
-    image: "/placeholder.svg",
+    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1112.JPG-ycFJnZXtoG4d3vQ9BVrXLhIF7NXxgr.jpeg",
     downloads: 1456,
+  },
+  {
+    id: 7,
+    title: "Bophouse Banner",
+    style: "Bophouse",
+    text: "AWESOME",
+    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1064.JPG-fIkmk9Jp6D6OZHlDhoxgpeUDAHzI3w.jpeg",
+    downloads: 923,
+  },
+  {
+    id: 8,
+    title: "Three Cats Card",
+    style: "Three Cats",
+    text: "Hello Friend",
+    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2025-04-16_03-03-06.jpg-zTOcfTscZ9yF9I0lS86inZ59NpBRAN.jpeg",
+    downloads: 654,
   },
 ]
 
@@ -90,8 +106,20 @@ export default function GalleryPage() {
                   className="bg-gray-800/50 rounded-lg border border-purple-700/30 overflow-hidden hover:border-purple-500/50 transition-all cursor-pointer"
                   onClick={() => setSelectedItem(item)}
                 >
-                  <div className="aspect-video bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center">
-                    <ImageIcon className="w-12 h-12 text-purple-400" />
+                  <div className="aspect-video bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = '<svg class="w-12 h-12 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
+                        }
+                      }}
+                    />
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-white mb-1">{item.title}</h3>
@@ -131,8 +159,20 @@ export default function GalleryPage() {
                     ×
                   </Button>
                 </div>
-                <div className="aspect-video bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-lg flex items-center justify-center mb-4">
-                  <ImageIcon className="w-16 h-16 text-purple-400" />
+                <div className="aspect-video bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-lg flex items-center justify-center mb-4 overflow-hidden">
+                  <img 
+                    src={selectedItem.image} 
+                    alt={selectedItem.title}
+                    className="w-full h-full object-cover rounded-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<svg class="w-16 h-16 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
+                      }
+                    }}
+                  />
                 </div>
                 <div className="space-y-2 mb-4">
                   <p><span className="text-purple-300">Style:</span> {selectedItem.style}</p>

@@ -27,6 +27,7 @@ const signOptions = [
     processor: processSignImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1047.JPG-eUk9CLgdVSnDP6Q2CWWt0ahox0GZEn.jpeg"
   },
   {
     id: "bophouse",
@@ -35,6 +36,7 @@ const signOptions = [
     processor: processBophouseImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1064.JPG-fIkmk9Jp6D6OZHlDhoxgpeUDAHzI3w.jpeg"
   },
   {
     id: "bophouse-new",
@@ -43,6 +45,7 @@ const signOptions = [
     processor: processBophouseNewImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1136.JPG-45Dhw5868FFua9u5UQT8VTJ81BKpfq.jpeg"
   },
   {
     id: "liv",
@@ -51,6 +54,7 @@ const signOptions = [
     processor: processLivImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1076.JPG-VQMAwjnByZX1oMtvD1Dnwu0A6W90L4.jpeg"
   },
   {
     id: "liv-digital",
@@ -59,6 +63,7 @@ const signOptions = [
     processor: processLivDigitalImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1112.JPG-ycFJnZXtoG4d3vQ9BVrXLhIF7NXxgr.jpeg"
   },
   {
     id: "poppy",
@@ -67,6 +72,7 @@ const signOptions = [
     processor: processPoppyImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "/images/poppy-template.jpeg"
   },
   {
     id: "booty",
@@ -75,6 +81,7 @@ const signOptions = [
     processor: processBootyImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "/images/booty-template.jpeg"
   },
   {
     id: "double-monkey",
@@ -83,6 +90,7 @@ const signOptions = [
     processor: processDoubleMonkeyImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-05%20at%2010.jpg-S12CeanADthNRBsbZztHcKmgSilm0S.jpeg"
   },
   {
     id: "three-cats",
@@ -91,6 +99,7 @@ const signOptions = [
     processor: processThreeCatsImage,
     requiresText: true,
     maxImages: 0,
+    previewImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2025-04-16_03-03-06.jpg-zTOcfTscZ9yF9I0lS86inZ59NpBRAN.jpeg"
   },
   {
     id: "times-square",
@@ -99,6 +108,7 @@ const signOptions = [
     processor: processTimesSquareImage,
     requiresText: false,
     maxImages: 1,
+    previewImage: "/images/times-square-billboard.jpeg"
   },
   {
     id: "times-square-new",
@@ -107,6 +117,7 @@ const signOptions = [
     processor: processTimesSquareNewImage,
     requiresText: false,
     maxImages: 2,
+    previewImage: "/images/times-square-billboard-new.jpeg"
   },
 ]
 
@@ -230,8 +241,20 @@ export default function GeneratePage() {
                       }`}
                       onClick={() => setSelectedSign(option)}
                     >
-                      <div className="flex items-center justify-center w-full h-16 bg-gray-700/50 rounded-md mb-2">
-                        <ImageIcon className="w-8 h-8 text-purple-400" />
+                      <div className="flex items-center justify-center w-full h-16 bg-gray-700/50 rounded-md mb-2 overflow-hidden">
+                        <img 
+                          src={option.previewImage} 
+                          alt={option.name}
+                          className="w-full h-full object-cover rounded-md"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = '<svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
+                            }
+                          }}
+                        />
                       </div>
                       <h4 className="font-medium text-white mb-1">{option.name}</h4>
                       <p className="text-sm text-gray-400">{option.description}</p>
@@ -309,6 +332,21 @@ export default function GeneratePage() {
                 <div className="bg-gray-800/30 p-4 rounded-lg border border-purple-700/30">
                   <h4 className="font-medium text-purple-300 mb-2">Selected Style: {selectedSign.name}</h4>
                   <p className="text-sm text-gray-400">{selectedSign.description}</p>
+                  <div className="mt-3 w-full h-24 bg-gray-700/50 rounded-md overflow-hidden">
+                    <img 
+                      src={selectedSign.previewImage} 
+                      alt={selectedSign.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg></div>';
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               </TabsContent>
 

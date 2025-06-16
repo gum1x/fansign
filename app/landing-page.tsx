@@ -82,18 +82,64 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { name: "Classic Sign", desc: "Illuminated letters" },
-              { name: "Handwritten", desc: "Natural writing style" },
-              { name: "Digital Display", desc: "LED screen effect" },
-              { name: "Billboard", desc: "Times Square style" },
-              { name: "Neon Sign", desc: "Glowing neon effect" },
-              { name: "Cursive", desc: "Elegant script" },
-              { name: "Marker", desc: "Bold marker style" },
-              { name: "Custom", desc: "Upload your images" },
+              { 
+                name: "Classic Sign", 
+                desc: "Illuminated letters",
+                image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1047.JPG-eUk9CLgdVSnDP6Q2CWWt0ahox0GZEn.jpeg"
+              },
+              { 
+                name: "Bophouse", 
+                desc: "Banner style",
+                image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1064.JPG-fIkmk9Jp6D6OZHlDhoxgpeUDAHzI3w.jpeg"
+              },
+              { 
+                name: "LIV Digital", 
+                desc: "LED screen effect",
+                image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1112.JPG-ycFJnZXtoG4d3vQ9BVrXLhIF7NXxgr.jpeg"
+              },
+              { 
+                name: "Times Square", 
+                desc: "Billboard style",
+                image: "/images/times-square-billboard.jpeg"
+              },
+              { 
+                name: "Handwritten", 
+                desc: "Natural writing",
+                image: "/images/booty-template.jpeg"
+              },
+              { 
+                name: "Double Monkey", 
+                desc: "Cursive script",
+                image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-05%20at%2010.jpg-S12CeanADthNRBsbZztHcKmgSilm0S.jpeg"
+              },
+              { 
+                name: "Three Cats", 
+                desc: "Card style",
+                image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photo_2025-04-16_03-03-06.jpg-zTOcfTscZ9yF9I0lS86inZ59NpBRAN.jpeg"
+              },
+              { 
+                name: "LIV Sign", 
+                desc: "Neon effect",
+                image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_1076.JPG-VQMAwjnByZX1oMtvD1Dnwu0A6W90L4.jpeg"
+              },
             ].map((style, index) => (
               <div key={index} className="bg-gray-800/50 p-4 rounded-lg border border-purple-700/30 text-center">
-                <div className="w-full h-20 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-md mb-3 flex items-center justify-center">
-                  <Zap className="w-8 h-8 text-purple-400" />
+                <div className="w-full h-20 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-md mb-3 flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={style.image} 
+                    alt={style.name}
+                    className="w-full h-full object-cover rounded-md"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        const icon = document.createElement('div');
+                        icon.innerHTML = '<svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
+                        parent.appendChild(icon);
+                      }
+                    }}
+                  />
                 </div>
                 <h3 className="font-semibold text-white mb-1">{style.name}</h3>
                 <p className="text-sm text-gray-400">{style.desc}</p>
