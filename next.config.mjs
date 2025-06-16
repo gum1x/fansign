@@ -25,8 +25,6 @@ const nextConfig = {
       },
     ],
   },
-  // Enable static export for Netlify
-  output: 'export',
   trailingSlash: true,
   // Handle environment variables
   env: {
