@@ -1,12 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Download, ArrowLeft, RefreshCw, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { Suspense } from "react"
 
 function DownloadPageContent() {
   const params = useParams()

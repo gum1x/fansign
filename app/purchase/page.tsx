@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,7 +10,7 @@ import { authService } from '@/lib/auth'
 import { CREDIT_PACKAGES } from '@/lib/oxapay'
 import type { AuthUser } from '@/lib/auth'
 
-export default function PurchasePage() {
+function PurchasePageContent() {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null)
@@ -309,5 +309,17 @@ export default function PurchasePage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function PurchasePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    }>
+      <PurchasePageContent />
+    </Suspense>
   )
 }

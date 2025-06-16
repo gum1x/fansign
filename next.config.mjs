@@ -19,6 +19,10 @@ const nextConfig = {
       },
     ],
   },
+  // Fix for Next.js searchParams bug
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
 }
 
 export default nextConfig
