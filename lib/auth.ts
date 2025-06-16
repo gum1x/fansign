@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { supabase, handleDatabaseError, isSupabaseConfigured } from './supabase'
+import { config } from './config'
 import type { User } from './supabase'
 
 export interface AuthUser {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authService } from '@/lib/auth'
 import { supabase, handleDatabaseError, isSupabaseConfigured } from '@/lib/supabase'
-import { GENERATION_COSTS } from '@/lib/oxapay'
+import { GENERATION_COSTS } from '@/lib/config'
 
 export async function POST(request: NextRequest) {
   try {

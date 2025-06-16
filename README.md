@@ -12,41 +12,51 @@ A Next.js application for generating custom fansigns with AI-powered text render
 
 ## Setup
 
-### 1. Environment Variables
+### 1. Configuration
 
-Copy `.env.example` to `.env.local` and fill in your values:
+All API keys and configuration are now hardcoded in the `lib/config.ts` file. You need to update the following values:
 
-```bash
-cp .env.example .env.local
+```typescript
+export const config = {
+  // Supabase Configuration
+  supabase: {
+    url: "https://your-project.supabase.co", // Replace with your actual Supabase URL
+    anonKey: "your-supabase-anon-key-here", // Replace with your actual anon key
+    serviceRoleKey: "your-supabase-service-role-key-here", // Replace with your actual service role key
+  },
+
+  // Payment Configuration (OxaPay)
+  payment: {
+    merchantKey: "your-oxapay-merchant-key-here", // Replace with your actual OxaPay merchant key
+  },
+
+  // Security
+  auth: {
+    secret: "your-nextauth-secret-here", // Replace with a random secret
+  },
+}
 ```
 
-Required environment variables:
-- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
-- `NEXT_PUBLIC_APP_URL` - Your deployed app URL
-- `OXAPAY_MERCHANT_KEY` - Your OxaPay merchant key
-- `NEXTAUTH_SECRET` - Random secret for NextAuth
+**⚠️ SECURITY WARNING**: Hardcoding API keys in source code is NOT recommended for production applications as it exposes sensitive information. This approach should only be used for development/demo purposes.
 
 ### 2. Supabase Setup
 
 1. Create a new Supabase project
 2. Run the migrations in the `supabase/migrations` folder
-3. Copy your project URL and keys to your environment variables
+3. Copy your project URL and keys to `lib/config.ts`
 
 ### 3. OxaPay Setup
 
 1. Create an OxaPay merchant account
 2. Set your callback URL to: `https://your-app.netlify.app/api/payments/callback`
-3. Copy your merchant key to your environment variables
+3. Copy your merchant key to `lib/config.ts`
 
 ### 4. Deployment
 
 This app is configured for Netlify deployment:
 
 1. Connect your GitHub repository to Netlify
-2. Set your environment variables in Netlify dashboard
-3. Deploy
+2. Deploy (no environment variables needed since they're hardcoded)
 
 ## Development
 
@@ -84,3 +94,12 @@ The app uses the following main tables:
 - Tailwind CSS
 - Canvas API for image processing
 - OxaPay for cryptocurrency payments
+
+## Security Note
+
+This configuration exposes API keys in the source code. For production applications, you should:
+
+1. Use environment variables instead of hardcoded values
+2. Set up proper CI/CD with secret management
+3. Use server-side API routes to protect sensitive keys
+4. Implement proper authentication and authorization

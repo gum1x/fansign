@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
-import { env } from './env'
+import { config } from './config'
 
-// Create Supabase client with proper error handling
+// Create Supabase client with hardcoded configuration
 export const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  config.supabase.url,
+  config.supabase.anonKey,
   {
     auth: {
       autoRefreshToken: true,
@@ -52,10 +52,10 @@ export interface Payment {
 
 // Helper function to check if Supabase is properly configured
 export function isSupabaseConfigured(): boolean {
-  return !!(env.NEXT_PUBLIC_SUPABASE_URL && 
-           env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-           env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
-           env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 20)
+  return !!(config.supabase.url && 
+           config.supabase.anonKey &&
+           config.supabase.url.startsWith('https://') &&
+           config.supabase.anonKey.length > 20)
 }
 
 // Helper function to handle database errors gracefully
