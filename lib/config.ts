@@ -5,9 +5,9 @@
 export const config = {
   // Supabase Configuration
   supabase: {
-    url: "https://your-project.supabase.co", // Replace with your actual Supabase URL
-    anonKey: "your-supabase-anon-key-here", // Replace with your actual anon key
-    serviceRoleKey: "your-supabase-service-role-key-here", // Replace with your actual service role key
+    url: "https://ppylhaipynyuvxvfsftb.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBweWxoYWlweW55dXZ4dmZzZnRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMzY0NzIsImV4cCI6MjA2NTYxMjQ3Mn0.q6UNGH88YsDXIY73jjWk7jqr3RVJ8a4fa--YdmgyuUU",
+    serviceRoleKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBweWxoYWlweW55dXZ4dmZzZnRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDAzNjQ3MiwiZXhwIjoyMDY1NjEyNDcyfQ.ZGfWms9AVxldyJhLki0XI0rQuQE0HL9TlGpqoxHYMr0",
   },
 
   // App Configuration
@@ -17,12 +17,12 @@ export const config = {
 
   // Payment Configuration (OxaPay)
   payment: {
-    merchantKey: "your-oxapay-merchant-key-here", // Replace with your actual OxaPay merchant key
+    merchantKey: "W4XUVS-6WDI1B-55YR9I-AUQFH4",
   },
 
   // Security
   auth: {
-    secret: "your-nextauth-secret-here", // Replace with a random secret
+    secret: "rTLBYSXa3b8ErpqgxJCL63JXdQ6zQLyFEJEY7",
     url: "https://fansign.netlify.app",
   },
 
