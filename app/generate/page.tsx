@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Download, Upload, RefreshCw, ImageIcon, Save, Trash2, Sparkles, Zap, Star, Heart, CreditCard } from "lucide-react"
+import { ArrowLeft, Download, Upload, RefreshCw, ImageIcon, Save, Trash2, Sparkles, Zap, Star, Heart, CreditCard, User } from "lucide-react"
 import Link from "next/link"
 import { processSignImage } from "@/utils/processSignImage"
 import { processBophouseImage } from "@/utils/processBophouseImage"
@@ -206,7 +206,7 @@ export default function GeneratePage() {
   }
 
   const handleGenerate = async () => {
-    // Check if user is logged in first
+    // Check if user is logged in first - this is where we require authentication
     if (!user) {
       setShowLoginPrompt(true)
       return
@@ -375,19 +375,22 @@ export default function GeneratePage() {
       {showLoginPrompt && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => setShowLoginPrompt(false)}>
           <div className="bg-gray-900 rounded-lg border border-purple-700/50 max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-bold text-white mb-4">Login Required</h3>
-            <p className="text-gray-300 mb-6">
-              You need to create an account or sign in to generate fansigns. It's free and you'll get 10 credits to start!
-            </p>
-            <div className="flex space-x-4">
-              <Button asChild className="flex-1 bg-gradient-to-r from-purple-700 to-violet-900 hover:from-purple-800 hover:to-violet-950">
-                <Link href="/auth">
-                  Sign In / Register
-                </Link>
-              </Button>
-              <Button variant="outline" onClick={() => setShowLoginPrompt(false)} className="border-purple-700/50">
-                Cancel
-              </Button>
+            <div className="text-center">
+              <User className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-4">Login Required</h3>
+              <p className="text-gray-300 mb-6">
+                You need to create an account or sign in to generate fansigns. It's free and you'll get 10 credits to start!
+              </p>
+              <div className="flex space-x-4">
+                <Button asChild className="flex-1 bg-gradient-to-r from-purple-700 to-violet-900 hover:from-purple-800 hover:to-violet-950">
+                  <Link href="/auth">
+                    Sign In / Register
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={() => setShowLoginPrompt(false)} className="border-purple-700/50">
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -643,7 +646,7 @@ export default function GeneratePage() {
                           </>
                         ) : !user ? (
                           <>
-                            <CreditCard className="w-4 h-4 mr-2" />
+                            <User className="w-4 h-4 mr-2" />
                             Login to Generate
                           </>
                         ) : user.credits < getCreditCost() ? (

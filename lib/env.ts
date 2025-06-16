@@ -3,7 +3,17 @@
 
 function getEnvVar(key: string, defaultValue: string = ''): string {
   try {
-    const value = process.env[key] || defaultValue
+    // Check both process.env and window for client-side variables
+    let value = ''
+    
+    if (typeof window !== 'undefined' && key.startsWith('NEXT_PUBLIC_')) {
+      // Client-side: try to get from window or process.env
+      value = (window as any).__NEXT_DATA__?.env?.[key] || process.env[key] || defaultValue
+    } else {
+      // Server-side: get from process.env
+      value = process.env[key] || defaultValue
+    }
+    
     // Clean up the value by removing any whitespace, newlines, or quotes
     return value.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '')
   } catch (error) {

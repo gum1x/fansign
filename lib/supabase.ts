@@ -30,22 +30,37 @@ function validateAndCleanSupabaseKey(key: string, keyName: string): string {
 const cleanSupabaseUrl = supabaseUrl.trim()
 const cleanSupabaseAnonKey = validateAndCleanSupabaseKey(supabaseAnonKey, 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-export const supabase = createClient(
-  cleanSupabaseUrl,
-  cleanSupabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10
+// Only create Supabase client if we have valid credentials
+let supabase: any = null
+
+try {
+  if (cleanSupabaseUrl && cleanSupabaseAnonKey && 
+      !cleanSupabaseUrl.includes('placeholder') && 
+      !cleanSupabaseAnonKey.includes('placeholder')) {
+    supabase = createClient(
+      cleanSupabaseUrl,
+      cleanSupabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false
+        },
+        realtime: {
+          params: {
+            eventsPerSecond: 10
+          }
+        }
       }
-    }
+    )
+  } else {
+    console.warn('⚠️ Supabase credentials not configured, running in demo mode')
   }
-)
+} catch (error) {
+  console.error('Failed to initialize Supabase client:', error)
+}
+
+export { supabase }
 
 // Database types
 export interface User {
@@ -86,6 +101,7 @@ export function isSupabaseConfigured(): boolean {
   }
   
   return !!(
+    supabase &&
     env.NEXT_PUBLIC_SUPABASE_URL && 
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
     env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
