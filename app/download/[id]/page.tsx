@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Download, ArrowLeft, RefreshCw, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { Suspense } from "react"
 
-export default function DownloadPage() {
+function DownloadPageContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -108,5 +109,20 @@ export default function DownloadPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+export default function DownloadPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center p-4">
+        <div className="text-center">
+          <RefreshCw className="w-12 h-12 text-purple-400 mb-2 animate-spin mx-auto" />
+          <div className="text-purple-300">Loading...</div>
+        </div>
+      </div>
+    }>
+      <DownloadPageContent />
+    </Suspense>
   )
 }
