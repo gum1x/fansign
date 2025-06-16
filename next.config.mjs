@@ -25,10 +25,6 @@ const nextConfig = {
       },
     ],
   },
-  // Fix for Next.js searchParams bug
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
   // Optimize for deployment
   output: 'standalone',
   // Handle environment variables
