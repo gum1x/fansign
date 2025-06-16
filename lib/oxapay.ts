@@ -1,4 +1,4 @@
-import { config } from './config'
+import { env } from './env'
 
 // OxaPay integration for cryptocurrency payments
 export interface OxaPayConfig {
@@ -94,13 +94,13 @@ export class OxaPayService {
 
   async createPayment(request: OxaPayPaymentRequest): Promise<OxaPayPaymentResponse> {
     try {
-      if (config.isDevelopment || this.merchantKey.includes('placeholder')) {
+      if (env.isDevelopment || this.merchantKey.includes('placeholder')) {
         // Return mock response for development
         return {
           result: 100,
           message: 'Success (Demo Mode)',
           trackId: Math.floor(Math.random() * 1000000),
-          payLink: `${config.app.url}/purchase?success=true&demo=true`
+          payLink: `${env.NEXT_PUBLIC_APP_URL}/purchase?success=true&demo=true`
         }
       }
 
@@ -122,7 +122,7 @@ export class OxaPayService {
 
   async getPaymentStatus(trackId: number): Promise<any> {
     try {
-      if (config.isDevelopment || this.merchantKey.includes('placeholder')) {
+      if (env.isDevelopment || this.merchantKey.includes('placeholder')) {
         // Return mock status for development
         return {
           result: 100,
@@ -151,7 +151,7 @@ export class OxaPayService {
   }
 
   verifyCallback(callbackData: OxaPayCallbackData, expectedHmac: string): boolean {
-    if (config.isDevelopment) {
+    if (env.isDevelopment) {
       return true // Skip verification in development
     }
 
@@ -164,4 +164,4 @@ export class OxaPayService {
   }
 }
 
-export const oxaPayService = new OxaPayService(config.payment.merchantKey)
+export const oxaPayService = new OxaPayService(env.OXAPAY_MERCHANT_KEY)

@@ -18,7 +18,7 @@ import { processThreeCatsImage } from "@/utils/processThreeCatsImage"
 import { processTimesSquareImage } from "@/utils/processTimesSquareImage"
 import { processTimesSquareNewImage } from "@/utils/processTimesSquareNewImage"
 import { authService } from "@/lib/auth"
-import { GENERATION_COSTS } from "@/lib/config"
+import { GENERATION_COSTS } from "@/lib/oxapay"
 import type { AuthUser } from "@/lib/auth"
 
 const signOptions = [

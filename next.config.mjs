@@ -25,8 +25,7 @@ const nextConfig = {
       },
     ],
   },
-  // Enable static export for Netlify
-  output: 'export',
+  // Remove static export - use server-side rendering for dynamic functionality
   trailingSlash: true,
   // Handle environment variables
   env: {

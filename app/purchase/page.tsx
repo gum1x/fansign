@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, CreditCard, Star, Zap, Crown, Sparkles, ExternalLink, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { authService } from '@/lib/auth'
-import { CREDIT_PACKAGES } from '@/lib/config'
+import { CREDIT_PACKAGES } from '@/lib/oxapay'
 import type { AuthUser } from '@/lib/auth'
 
 function PurchasePageContent() {
