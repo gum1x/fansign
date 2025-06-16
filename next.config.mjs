@@ -41,6 +41,12 @@ const nextConfig = {
         tls: false,
       }
     }
+    
+    // Ignore critical dependency warnings from Supabase Realtime
+    config.ignoreWarnings = [
+      { module: /@supabase\/realtime-js/ }
+    ]
+    
     return config
   },
 }
