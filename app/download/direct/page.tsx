@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Download, ArrowLeft, RefreshCw, AlertCircle } from "lucide-react"
 import Link from "next/link"
 
-export default function DirectDownloadPage() {
+function DirectDownloadContent() {
   const [imageData, setImageData] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -195,5 +195,20 @@ export default function DirectDownloadPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+export default function DirectDownloadPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 text-purple-400 animate-spin mx-auto mb-4" />
+          <p className="text-purple-300">Loading...</p>
+        </div>
+      </div>
+    }>
+      <DirectDownloadContent />
+    </Suspense>
   )
 }
